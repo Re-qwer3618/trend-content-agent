@@ -1,0 +1,5 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/../../envs/miniconda3/envs/agent-py313/python.exe",
+  "python.terminal.activateEnvironment": false,
+  "files.encoding": "utf8"
+}

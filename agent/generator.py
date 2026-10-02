@@ -1,6 +1,10 @@
-"""콘텐츠 기획서 생성: 네이버 블로그 / 인스타그램 릴스.
+"""콘텐츠 생성: 네이버 블로그 / 인스타그램 릴스.
 
-LLM이 있으면 prompts/*.md 템플릿으로 작성, 없거나 실패하면 데이터로 채운 골격(템플릿)을 만든다.
+2단계로 만든다.
+  1) 기획서 (prompts/blog.md, reels.md)        — 키워드 배치, 구성안, 스토리보드
+  2) 완성본 (prompts/blog_draft.md, reels_script.md) — 기획서를 받아 발행용 본문 원고 / 컷별 촬영 대본
+     수집 데이터가 헤드라인 위주라, 이 단계는 웹 검색으로 원문을 확인하며 쓴다 (--no-web 으로 끔).
+LLM이 없거나 실패하면 1단계는 데이터로 채운 골격(템플릿), 2단계는 생략한다.
 프롬프트 수정은 agent/prompts/ 의 마크다운 파일만 고치면 된다.
 """
 from __future__ import annotations
@@ -13,39 +17,60 @@ from .analyzer import Analysis, digest
 from .llm import LLM, LLMError
 
 PROMPT_DIR = Path(__file__).parent / "prompts"
-FORMATS = {"blog": "네이버 블로그 포스팅 기획서", "reels": "인스타그램 릴스 기획서"}
+FORMATS = {"blog": "네이버 블로그 포스팅", "reels": "인스타그램 릴스"}
+STAGE_NAMES = {"blog": ("기획서", "발행용 본문 원고"), "reels": ("기획서", "촬영·편집 대본")}
+DRAFT_PROMPT = {"blog": "blog_draft", "reels": "reels_script"}
 
 
 @dataclass
 class Plan:
     format: str
     title: str
-    body: str
+    body: str                       # 1단계 기획서
     generated_by: str
+    draft: str = ""                 # 2단계 완성본 (LLM 있을 때만)
+    draft_by: str = ""
 
 
 def _prompt(name: str) -> str:
     return (PROMPT_DIR / f"{name}.md").read_text(encoding="utf-8")
 
 
-def _render(template: str, analysis: Analysis) -> str:
+def _render(template: str, analysis: Analysis, plan: str = "", with_urls: bool = False) -> str:
     insight = json.dumps(analysis.insight, ensure_ascii=False, indent=2)
     return (template
+            .replace("{{plan}}", plan)
             .replace("{{insight}}", f"## 리서치 인사이트\n```json\n{insight}\n```")
-            .replace("{{digest}}", digest(analysis)))
+            .replace("{{digest}}", digest(analysis, with_urls=with_urls)))
 
 
-def generate(analysis: Analysis, fmt: str, llm: LLM | None) -> Plan:
+def generate(analysis: Analysis, fmt: str, llm: LLM | None,
+             draft: bool = True, web_search: bool = True, log=print) -> Plan:
     if fmt not in FORMATS:
         raise ValueError(f"알 수 없는 포맷: {fmt} (가능: {list(FORMATS)})")
-    if llm:
+    plan_name, draft_name = STAGE_NAMES[fmt]
+    if not llm:
+        body = (_blog_template if fmt == "blog" else _reels_template)(analysis)
+        return Plan(fmt, FORMATS[fmt], body, "템플릿 (LLM 미사용)")
+
+    system = _prompt("system")
+    try:
+        log(f"  · {plan_name}")
+        plan = Plan(fmt, FORMATS[fmt], llm.text(system, _render(_prompt(fmt), analysis, with_urls=True)), llm.label)
+    except LLMError as e:
+        analysis.notes.append(f"{FORMATS[fmt]} {plan_name} LLM 생성 실패 → 템플릿 사용: {e}")
+        return Plan(fmt, FORMATS[fmt], (_blog_template if fmt == "blog" else _reels_template)(analysis),
+                    "템플릿 (LLM 실패)")
+
+    if draft:
         try:
-            body = llm.text(_prompt("system"), _render(_prompt(fmt), analysis))
-            return Plan(fmt, FORMATS[fmt], body, llm.label)
+            log(f"  · {draft_name}{' (웹 검색으로 원문 확인)' if web_search else ''}")
+            prompt = _render(_prompt(DRAFT_PROMPT[fmt]), analysis, plan=plan.body, with_urls=True)
+            plan.draft = llm.text(system, prompt, web_search=web_search)
+            plan.draft_by = llm.label + (" + 웹 검색" if web_search else "")
         except LLMError as e:
-            analysis.notes.append(f"{FORMATS[fmt]} LLM 생성 실패 → 템플릿 사용: {e}")
-    body = (_blog_template if fmt == "blog" else _reels_template)(analysis)
-    return Plan(fmt, FORMATS[fmt], body, "템플릿 (LLM 미사용)")
+            analysis.notes.append(f"{FORMATS[fmt]} {draft_name} 생성 실패: {e}")
+    return plan
 
 
 # ---------------------------------------------------------------- LLM 없을 때의 골격

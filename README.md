@@ -5,15 +5,45 @@
 ## 실행
 
 ```bat
-run.bat "가을 캠핑"                     :: 키워드 리서치 + 블로그·릴스 기획서
+run.bat "가을 캠핑"                     :: 리서치 + 기획서 + 웹 LLM용 제작 요청 프롬프트 (LLM API 비용 0)
+run.bat "가을 캠핑" --mode api          :: LLM API로 원고·대본까지 직접 생성 (유료)
+run.bat "가을 캠핑" --mode auto         :: API 시도, 크레딧 부족 등 실패분만 요청 프롬프트로
 run.bat                                 :: 키워드 입력 프롬프트 (엔터 = 오늘의 트렌드)
 run.bat --today                         :: 오늘의 급상승 트렌드에서 주제 선정
 run.bat "러닝화" --formats blog --llm gemini --limit 30
 run.bat "러닝화" --sources google_news youtube
+run.bat "러닝화" --no-draft --no-web    :: 기획서만 (빠르고 저렴)
+run.bat "러닝화" --make-images          :: 리포트 + 썸네일·커버 이미지 생성 (images\)
+run.bat --images-from reports\20261002_0019_가을_캠핑.md   :: 기존 리포트로 이미지만
 run.bat --check                         :: 키·수집기·LLM 상태 확인
 ```
 
 결과는 `reports\YYYYMMDD_HHMM_키워드.md`, 수집 원본 JSON은 `data\raw\`에 저장됩니다.
+LLM을 쓰면 블로그 본문 원고와 릴스 대본이 `..._blog_원고.md`, `..._reels_대본.md`로도 따로 저장됩니다.
+
+## 생성 모드 (`GENERATION_MODE`, 기본 `prompt`)
+
+| 모드 | LLM API | 결과 |
+|---|---|---|
+| `prompt` (기본) | 호출 안 함 | 규칙 기반 분석·기획서 골격 + **LLM 제작 요청 프롬프트** (`..._요청_blog.txt`, `_요청_reels.txt`, `_요청_images.txt`) |
+| `api` | 호출 (유료) | LLM이 기획서 → 발행용 원고 / 촬영 대본, 이미지 프롬프트까지 작성 |
+| `auto` | 시도 | API로 만들고, 크레딧 부족 등으로 실패한 부분만 요청 프롬프트로 대체 |
+
+요청 프롬프트는 수집 데이터·출처 URL·작성 지침이 다 들어간 **한 번에 붙여 넣는** 형태입니다.
+웹 검색이 되는 ChatGPT(검색 켜기)·Claude.ai·Gemini에 `.txt` 내용을 통째로 붙여 넣으면 기획서와 완성 원고가 한 답변에 나옵니다.
+작성 지침은 API 모드와 같은 `agent/prompts/*.md`를 쓰므로, 지침을 고치면 두 모드에 같이 반영됩니다.
+
+## 리포트 구성
+
+1. 요약 · 수집 현황 · 핵심 이슈 · 연관 키워드
+2. **네이버 블로그**: 기획서(제목 후보, SEO 키워드 배치 맵, 구성안) → **발행용 본문 원고**(출처 링크, 사진 자리, 태그 포함)
+3. **인스타 릴스**: 기획서(3초 훅, 스토리보드) → **촬영·편집 대본**(컷별 화면·자막·나레이션, 나레이션 전문, 캡션)
+4. 부록: 이슈별 원문 링크
+5. **이미지 생성 프롬프트**: 상위 이슈별 블로그 썸네일(1:1)·릴스 커버(9:16) 영문 프롬프트, 네거티브 프롬프트, 얹을 한글 문구, alt 텍스트
+
+원고·대본 단계는 수집 데이터가 헤드라인 위주라 **웹 검색으로 기사 원문을 확인하며** 씁니다(Claude `web_search` / Gemini Google 검색).
+확인하지 못한 기간·요금 같은 세부 정보는 `[확인 필요]`로 남으니 발행 전에 채우세요.
+한 번 실행에 LLM을 약 6번 호출합니다(인사이트 1, 기획서 2, 완성본 2, 이미지 1). 비용을 줄이려면 `--no-draft`, `--no-web`, `--no-images`를 쓰세요.
 
 ## 파이프라인
 
@@ -21,7 +51,8 @@ run.bat --check                         :: 키·수집기·LLM 상태 확인
 main.py (CLI)
   └─ collectors.collect_all()   플랫폼별 병렬 수집 → TrendItem 공통 형식
   └─ analyzer.analyze()         이슈 묶기·점수, 연관 키워드, 네이버 데이터랩 검색량, (LLM) 인사이트
-  └─ generator.generate()       블로그 / 릴스 기획서 (LLM, 없으면 템플릿 골격)
+  └─ generator.generate()       블로그 / 릴스: 기획서 → 완성본(웹 검색 근거) — LLM 없으면 템플릿 골격
+  └─ images.generate_image_prompts()  이슈별 썸네일·커버 이미지 프롬프트(영문)
   └─ report.save_report()       마크다운 리포트
 ```
 
@@ -39,12 +70,47 @@ trend-content-agent/
 │  │  └─ instagram.py       Instagram Graph API 해시태그 (선택)
 │  ├─ analyzer.py           핵심 이슈 선별·연관 키워드·LLM 인사이트(JSON 스키마)
 │  ├─ llm.py                Claude / Gemini 공통 인터페이스
-│  ├─ generator.py          기획서 생성 + LLM 없을 때 템플릿
+│  ├─ generator.py          기획서 → 완성본 2단계 생성 + LLM 없을 때 템플릿
+│  ├─ images.py             이미지 생성 프롬프트 (LLM 없으면 템플릿)
+│  ├─ image_maker.py        프롬프트 → 실제 이미지 (OpenAI / Gemini / Pollinations 무료)
 │  ├─ report.py             마크다운 리포트·원본 JSON 저장
-│  └─ prompts/              system.md, blog.md, reels.md  ← 기획서 형식은 여기서 수정
+│  └─ prompts/              system.md, blog.md, reels.md (기획서), blog_draft.md, reels_script.md (완성본)
+├─ .github/workflows/trend_bot.yml   매일 자동 실행 (GitHub Actions)
 ├─ reports/                 생성된 리포트 (git 제외)
+├─ images/                  생성된 이미지 (git 제외)
 └─ data/raw/                수집 원본 (git 제외)
 ```
+
+## 이미지 생성 (agent/image_maker.py)
+
+리포트의 이미지 프롬프트(`..._images.json`)로 실제 이미지를 만들어 `images\<리포트이름>\<이슈번호>_<용도>.jpg|png`에 저장하고,
+리포트 맨 아래 `생성된 이미지` 섹션에 연결합니다. `IMAGE_PROVIDER=auto`면 아래 순서로 **되는 것**을 씁니다
+(크레딧 부족·키 오류가 나면 다음 공급자로 자동 전환).
+
+| 공급자 | 필요 | 비고 |
+|---|---|---|
+| `openai` | `OPENAI_API_KEY` | `gpt-image-1-mini`, quality `low` (DALL-E 3는 2026-05-12 종료), 장당 유료 |
+| `gemini` | `GEMINI_API_KEY` | `gemini-3.1-flash-image` (Nano Banana 2), 결제 크레딧 필요 |
+| `pollinations` | 없음 (무료) | 약 30초에 1장 속도 제한(자동 대기), 익명은 워터마크·768px. `POLLINATIONS_TOKEN`(무료 가입)으로 워터마크 제거 |
+
+- LLM 없이 만든 템플릿 프롬프트는 한글 제목이 들어 있어, 생성 전에 영문 장면 묘사로 자동 변환합니다(LLM → 안 되면 Pollinations 무료 텍스트 API).
+- 이미지 안 글자는 넣지 않습니다. `얹을 문구`는 캔바·미리캔버스 등에서 올리세요.
+- 무료 공급자를 쓰면 프롬프트가 외부 서비스로 전송되고, 생성물이 공개 피드에 노출될 수 있습니다.
+
+## 매일 자동 실행 (GitHub Actions)
+
+`.github/workflows/trend_bot.yml` — 매일 **한국시간 08:00**에 GitHub 서버에서 리포트를 만들어 저장소의 **`reports` 브랜치**에
+`reports/`, `images/`로 올립니다. PC가 꺼져 있어도 되고, GitHub 웹·앱에서 바로 읽을 수 있습니다(실행별 Artifact도 30일 보관).
+
+1. 저장소 **Settings → Secrets and variables → Actions**
+   - **Secrets**: `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `NAVER_CLIENT_ID`, `NAVER_CLIENT_SECRET`, `YOUTUBE_API_KEY`, `OPENAI_API_KEY`, `POLLINATIONS_TOKEN` 중 있는 것
+   - **Variables**: `TREND_KEYWORDS`(예: `가을 캠핑,러닝화` — 비우면 오늘의 트렌드), `GENERATION_MODE`(기본 `prompt` = LLM 비용 0), `MAKE_IMAGES`(`true`면 이미지까지), `LLM_PROVIDER`, `IMAGE_PROVIDER`
+2. **Actions** 탭에서 워크플로 활성화 → `trend-bot` → **Run workflow**로 한 번 수동 실행해 확인
+3. 결과: 저장소에서 브랜치를 `reports`로 바꿔 `reports/` 폴더 열기
+
+- **이 저장소는 공개(public)라 `reports` 브랜치의 리포트·이미지도 누구나 볼 수 있습니다.** 공개가 곤란하면 저장소를 비공개로 바꾸세요(무료 계정은 Actions 월 2,000분 — 이 봇은 하루 5분 안팎).
+- 예약 실행은 GitHub 사정으로 수십 분 늦을 수 있고, 공개 저장소는 60일간 커밋이 없으면 예약이 자동 중지됩니다(Actions 탭에서 다시 켜기).
+- 실행 시간: 키워드 1개당 LLM 사용 시 수 분, 이미지 6장(무료) 약 4분.
 
 ## 이슈 점수 (analyzer.py)
 
@@ -61,7 +127,8 @@ LLM이 있으면 이 후보 중에서 콘텐츠화하기 좋은 이슈와 관점
 | 이름 | 용도 | 발급 |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | Claude (기본 `claude-opus-5-5`) | platform.claude.com |
-| `GEMINI_API_KEY` | Gemini (Claude 키가 없을 때 자동 선택) | aistudio.google.com |
+| `GEMINI_API_KEY` | Gemini `gemini-3.8-flash` (Claude 키가 없을 때 자동 선택) + 이미지 | aistudio.google.com |
+| `OPENAI_API_KEY` | (선택) 이미지 생성 gpt-image-1-mini | platform.openai.com |
 | `NAVER_CLIENT_ID` / `NAVER_CLIENT_SECRET` | 네이버 뉴스·블로그 검색 + 데이터랩 | developers.naver.com → 애플리케이션 등록, API에 '검색'·'데이터랩(검색어트렌드)' 추가 |
 | `YOUTUBE_API_KEY` | 유튜브 검색·인기 동영상 | Google Cloud 콘솔 → YouTube Data API v3 사용 설정 → API 키 |
 | `INSTAGRAM_ACCESS_TOKEN` / `INSTAGRAM_USER_ID` | 인스타 해시태그 상위 게시물 (선택) | Meta 개발자 앱 + 비즈니스/크리에이터 계정 |

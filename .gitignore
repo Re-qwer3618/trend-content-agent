@@ -4,5 +4,6 @@
 data/
 logs/
 reports/
+images/
 __pycache__/
 *.pyc

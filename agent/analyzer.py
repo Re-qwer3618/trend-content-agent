@@ -30,6 +30,7 @@ STOPWORDS = set(
     "기자 뉴스 오늘 사진 관련 위해 대한 통해 있다 없다 그리고 지난 이번 최근 대표 공개 진행 영상 단독 속보 종합 "
     "가장 정말 진짜 우리 이런 그런 어떤 모든 하나 때문 이후 이전 경우 정도 사실 생각 내용 이상 이하 "
     "올해 내년 작년 오전 오후 기준 발표 예정 가능 확인 제공 맞아 맞이 추진 개최 포착 실시 운영 "
+    "좋은 많은 다양한 함께 구독 좋아요 알림 채널 문의 instagram "
     "the and for with you this that from "
     "shorts youtube video official".split()
 )
@@ -44,9 +45,12 @@ def _strip_josa(tok: str) -> str:
     return tok
 
 
+_URL_RE = re.compile(r"https?://\S+|www\.\S+")
+
+
 def tokenize(text: str) -> list[str]:
     out = []
-    for raw in _TOKEN_RE.findall(text or ""):
+    for raw in _TOKEN_RE.findall(_URL_RE.sub(" ", text or "")):  # 유튜브 설명의 링크 제거
         tok = _strip_josa(raw)
         if len(tok) >= 2 and tok not in STOPWORDS:
             out.append(tok)
@@ -259,15 +263,18 @@ INSIGHT_SYSTEM = (
 )
 
 
-def digest(analysis: Analysis, max_issues: int = 7) -> str:
-    """LLM에 넘길 분석 요약(프롬프트용 텍스트)."""
+def digest(analysis: Analysis, max_issues: int = 7, with_urls: bool = False) -> str:
+    """LLM에 넘길 분석 요약(프롬프트용 텍스트). with_urls: 본문에 출처 링크를 걸 때."""
     lines = [f"# 입력 키워드: {analysis.keyword or '(없음 - 오늘의 트렌드 모드)'}", "", "## 핵심 이슈 후보"]
     for n, iss in enumerate(analysis.issues[:max_issues]):
         lines.append(f"[{n}] {iss.title}  (점수 {iss.score}, 플랫폼 {', '.join(iss.sources)})")
         for it in iss.items[:4]:
             meta = f" | {it.metric_label}" if it.metric_label else ""
             date = f" | {it.published_at:%Y-%m-%d}" if it.published_at else ""
-            lines.append(f"    - ({it.source}) {it.title}{meta}{date}")
+            press = f" | {it.extra['press']}" if it.extra.get("press") else ""
+            lines.append(f"    - ({it.source}) {it.title}{meta}{date}{press}")
+            if with_urls and it.url:
+                lines.append(f"      URL: {it.url}")
             if it.description:
                 lines.append(f"      {it.description[:160]}")
     lines += ["", "## 연관 키워드 (점수 / 등장 플랫폼 / 네이버 검색량 최근7일 증감)"]
@@ -332,7 +339,9 @@ def analyze(results: list[CollectResult], keyword: str | None, settings: Setting
         trends = NaverDataLab(settings).keyword_trends(probe[:5])
     except Exception as e:
         trends = {}
-        analysis.notes.append(f"네이버 데이터랩 조회 실패: {type(e).__name__}")
+        status = getattr(getattr(e, "response", None), "status_code", None)
+        hint = " — NAVER_CLIENT_ID/SECRET 인증 실패" if status == 401 else ""
+        analysis.notes.append(f"네이버 데이터랩 조회 실패: {type(e).__name__} {status or ''}{hint}")
     for k in analysis.keywords:
         k.trend = trends.get(k.word)
     analysis.seed_trend = trends.get(keyword) if keyword else None

@@ -1,0 +1,125 @@
+# 매일 아침 트렌드 리포트를 자동 생성해 `reports` 브랜치에 올린다 (PC·터미널 불필요).
+#
+# 설정 (GitHub 저장소 > Settings > Secrets and variables > Actions)
+#   Secrets   : ANTHROPIC_API_KEY, GEMINI_API_KEY, NAVER_CLIENT_ID, NAVER_CLIENT_SECRET,
+#               YOUTUBE_API_KEY, OPENAI_API_KEY, POLLINATIONS_TOKEN   (없는 건 비워 두면 해당 기능만 건너뜀)
+#   Variables : TREND_KEYWORDS  매일 돌릴 키워드, 쉼표로 구분 (예: 가을 캠핑,러닝화). 비우면 '오늘의 트렌드' 모드
+#               GENERATION_MODE prompt(기본, LLM API 비용 0) | api | auto
+#               LLM_PROVIDER    auto | claude | gemini | none   (기본 auto)
+#               IMAGE_PROVIDER  auto | openai | gemini | pollinations (기본 auto)
+#               MAKE_IMAGES     true 면 썸네일 이미지까지 생성 (기본 false)
+#
+# 결과: `reports` 브랜치의 reports/, images/ 폴더 (GitHub 웹·모바일에서 바로 열람) + 실행별 Artifact(30일 보관)
+# 수동 실행: Actions 탭 > trend-bot > Run workflow (키워드 직접 입력 가능)
+
+name: trend-bot
+
+on:
+  schedule:
+    - cron: "0 23 * * *"   # UTC 23:00 = 한국시간 08:00 (GitHub 사정으로 수십 분 늦을 수 있음)
+  workflow_dispatch:
+    inputs:
+      keywords:
+        description: "키워드 (쉼표로 여러 개, 비우면 저장소 변수 TREND_KEYWORDS 사용)"
+        required: false
+        default: ""
+      make_images:
+        description: "썸네일 이미지도 생성"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write          # reports 브랜치에 push
+
+concurrency:
+  group: trend-bot
+  cancel-in-progress: false
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      PYTHONUTF8: "1"
+      TZ: Asia/Seoul
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+      NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
+      YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      POLLINATIONS_TOKEN: ${{ secrets.POLLINATIONS_TOKEN }}
+      GENERATION_MODE: ${{ vars.GENERATION_MODE || 'prompt' }}
+      LLM_PROVIDER: ${{ vars.LLM_PROVIDER || 'auto' }}
+      IMAGE_PROVIDER: ${{ vars.IMAGE_PROVIDER || 'auto' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"   # 로컬 agent-py313과 같은 버전
+          cache: pip
+
+      - name: Install
+        run: pip install -r requirements.txt
+
+      - name: Key status
+        run: python main.py --check
+
+      - name: Generate reports
+        env:
+          INPUT_KEYWORDS: ${{ github.event.inputs.keywords }}
+          VAR_KEYWORDS: ${{ vars.TREND_KEYWORDS }}
+          MAKE_IMAGES: ${{ github.event.inputs.make_images || vars.MAKE_IMAGES || 'false' }}
+        run: |
+          KEYWORDS="${INPUT_KEYWORDS:-$VAR_KEYWORDS}"
+          FLAGS=""
+          [ "$MAKE_IMAGES" = "true" ] && FLAGS="--make-images"
+          failed=0
+          if [ -z "$(echo "$KEYWORDS" | tr -d ' ,')" ]; then
+            python main.py --today $FLAGS || failed=1
+          else
+            IFS=',' read -ra KWS <<< "$KEYWORDS"
+            for kw in "${KWS[@]}"; do
+              kw="$(echo "$kw" | xargs)"          # 앞뒤 공백 제거
+              [ -z "$kw" ] && continue
+              echo "::group::$kw"
+              python main.py "$kw" $FLAGS || { echo "::warning::'$kw' 리포트 생성 실패"; failed=1; }
+              echo "::endgroup::"
+            done
+          fi
+          ls reports/*.md >/dev/null 2>&1 || { echo "::error::리포트가 하나도 생성되지 않음"; exit 1; }
+          exit 0
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: trend-report-${{ github.run_number }}
+          path: |
+            reports/
+            images/
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Publish to reports branch
+        run: |
+          set -e
+          git config --global user.name "trend-bot"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin reports >/dev/null; then
+            git fetch --depth 1 origin reports
+            git worktree add publish FETCH_HEAD
+            git -C publish switch -C reports
+          else
+            git worktree add --detach publish
+            git -C publish switch --orphan reports
+          fi
+          mkdir -p publish/reports publish/images
+          cp -r reports/. publish/reports/
+          [ -d images ] && cp -r images/. publish/images/ || true
+          cd publish
+          git add -A reports images
+          if git diff --cached --quiet; then echo "변경 없음"; exit 0; fi
+          git commit -m "Trend report $(date +%F)"
+          git push origin HEAD:reports

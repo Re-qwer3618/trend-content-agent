@@ -3,12 +3,15 @@ from __future__ import annotations
 
 import json
 import re
+from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
 
 from .analyzer import Analysis
 from .config import KST
-from .generator import Plan
+from .generator import STAGE_NAMES, Plan
+from .images import USAGES, ImagePrompt
+from .prompt_pack import RequestPrompt
 
 SOURCE_LABEL = {
     "google_trends": "구글 트렌드(실시간)",
@@ -28,7 +31,9 @@ def _md_cell(text: str) -> str:
     return (text or "").replace("|", "\\|").replace("\n", " ")
 
 
-def build_markdown(analysis: Analysis, plans: list[Plan], now: datetime) -> str:
+def build_markdown(analysis: Analysis, plans: list[Plan], now: datetime,
+                   images: list[ImagePrompt] | None = None, images_by: str = "",
+                   requests: list[RequestPrompt] | None = None) -> str:
     a, ins = analysis, analysis.insight
     out = [
         f"# 트렌드 리서치 & 콘텐츠 기획 리포트: {a.keyword or '오늘의 트렌드'}",
@@ -86,8 +91,22 @@ def build_markdown(analysis: Analysis, plans: list[Plan], now: datetime) -> str:
         out += [f"- {t.title} ({t.metric_label})" for t in a.trending_now[:15]]
         out += ["", "</details>"]
 
-    for n, p in enumerate(plans, start=5):
-        out += ["", "---", "", f"## {n}. {p.title}", f"*작성: {p.generated_by}*", "", p.body.strip()]
+    n = 5
+    for p in plans:
+        plan_name, draft_name = STAGE_NAMES[p.format]
+        out += ["", "---", "", f"## {n}. {p.title} {plan_name}", f"*작성: {p.generated_by}*", "", p.body.strip()]
+        n += 1
+        if p.draft:
+            out += ["", "---", "", f"## {n}. {p.title} {draft_name}", f"*작성: {p.draft_by}*", "",
+                    _demote_headings(p.draft.strip())]
+            n += 1
+
+    if requests:
+        out += ["", "---", "", f"## {n}. LLM 제작 요청 프롬프트",
+                "> API를 쓰지 않고 웹 LLM(ChatGPT·Claude.ai·Gemini)에 붙여 넣어 완성본을 만드는 프롬프트입니다. "
+                "같은 내용이 `*_요청_*.txt` 파일로도 저장돼 있어 통째로 복사하기 편합니다.", ""]
+        for r in requests:
+            out += [f"### {r.title}", f"*사용법: {r.tip}*", "", "````text", r.text, "````", ""]
 
     out += ["", "---", "", "## 부록: 이슈별 원문 링크"]
     for i, iss in enumerate(a.issues):
@@ -95,15 +114,61 @@ def build_markdown(analysis: Analysis, plans: list[Plan], now: datetime) -> str:
         for it in iss.items[:5]:
             meta = f" · {it.metric_label}" if it.metric_label else ""
             out.append(f"- [{it.title}]({it.url}) — {SOURCE_LABEL.get(it.source, it.source)}{meta}")
+
+    if images:
+        out += ["", "---", "", "## 이미지 생성 프롬프트", f"*작성: {images_by}*", "",
+                "> 이미지 안에는 글자를 넣지 않도록 만들었습니다. `얹을 문구`는 편집 툴에서 따로 올리세요.", ""]
+        for img in images:
+            label = USAGES[img.usage][0]
+            out += [
+                f"### [{img.issue_index}] {img.issue_title[:50]} — {label} ({img.aspect_ratio})",
+                f"- 스타일: {img.style}",
+                f"- 얹을 문구: **{img.overlay_text_ko}**",
+                f"- 대체텍스트(alt): {img.alt_text_ko}",
+                "",
+                "```text",
+                img.prompt_en,
+                "```",
+                f"Negative: `{img.negative_prompt}`",
+                "",
+            ]
     return "\n".join(out) + "\n"
 
 
-def save_report(analysis: Analysis, plans: list[Plan], report_dir: Path) -> Path:
+def _demote_headings(md: str) -> str:
+    """원고의 `#`/`##` 제목을 리포트 안 하위 제목(###~)으로 내린다. 코드 블록 안은 건드리지 않음."""
+    lines, in_code = [], False
+    for line in md.splitlines():
+        if line.startswith("```"):
+            in_code = not in_code
+        elif not in_code and (m := re.match(r"^(#{1,4}) ", line)):
+            line = "#" * min(len(m.group(1)) + 2, 6) + line[len(m.group(1)):]
+        lines.append(line)
+    return "\n".join(lines)
+
+
+def save_report(analysis: Analysis, plans: list[Plan], report_dir: Path,
+                images: list[ImagePrompt] | None = None, images_by: str = "",
+                requests: list[RequestPrompt] | None = None) -> Path:
     now = datetime.now(KST)
     report_dir.mkdir(parents=True, exist_ok=True)
     path = report_dir / f"{now:%Y%m%d_%H%M}_{_slug(analysis.keyword or 'today')}.md"
-    path.write_text(build_markdown(analysis, plans, now), encoding="utf-8")
+    path.write_text(build_markdown(analysis, plans, now, images, images_by, requests), encoding="utf-8")
+    for r in requests or []:  # 웹 LLM에 통째로 붙여 넣기 좋게 따로 저장
+        path.with_name(f"{path.stem}_요청_{r.key}.txt").write_text(r.text + "\n", encoding="utf-8")
+    for p in plans:  # 완성 원고는 복사해 쓰기 쉽게 따로도 저장
+        if p.draft:
+            path.with_name(f"{path.stem}_{p.format}_{STAGE_NAMES[p.format][1].split()[-1]}.md").write_text(
+                p.draft.strip() + "\n", encoding="utf-8")
+    if images:  # image_maker가 다시 읽어 실제 이미지를 만든다
+        images_json_path(path).write_text(
+            json.dumps({"by": images_by, "prompts": [asdict(i) for i in images]}, ensure_ascii=False, indent=2),
+            encoding="utf-8")
     return path
+
+
+def images_json_path(report: Path) -> Path:
+    return report.with_name(f"{report.stem}_images.json")
 
 
 def save_raw(analysis: Analysis, data_dir: Path) -> Path:

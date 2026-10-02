@@ -53,6 +53,12 @@ class Settings:
     youtube_api_key: str | None = field(repr=False)
     instagram_access_token: str | None = field(repr=False)
     instagram_user_id: str | None = field(repr=False)
+    generation_mode: str = "prompt"          # prompt | api | auto
+    openai_api_key: str | None = field(default=None, repr=False)
+    image_dir: Path = PROJECT_DIR / "images"
+    image_provider: str = "auto"             # auto | openai | gemini | pollinations
+    openai_image_model: str = "gpt-image-1-mini"  # dall-e-3는 2026-05-12 종료
+    gemini_image_model: str = "gemini-3.1-flash-image"
     instagram_graph_version: str = "v23.0"
     http_timeout: float = 15.0
     user_agent: str = "Mozilla/5.0 (trend-content-agent)"
@@ -64,6 +70,7 @@ class Settings:
             "NAVER_CLIENT_ID/SECRET": bool(self.naver_client_id and self.naver_client_secret),
             "YOUTUBE_API_KEY": bool(self.youtube_api_key),
             "INSTAGRAM_ACCESS_TOKEN/USER_ID": bool(self.instagram_access_token and self.instagram_user_id),
+            "OPENAI_API_KEY (이미지)": bool(self.openai_api_key),
         }
 
 
@@ -76,7 +83,7 @@ def load_settings() -> Settings:
         llm_provider=env("LLM_PROVIDER", "auto").lower(),
         claude_model=env("CLAUDE_MODEL", "claude-opus-5-5"),
         claude_effort=env("CLAUDE_EFFORT", "medium"),
-        gemini_model=env("GEMINI_MODEL", "gemini-2.5-flash"),
+        gemini_model=env("GEMINI_MODEL", "gemini-3.8-flash"),  # 2.5-flash는 신규 사용자에게 닫힘(2026-10)
         anthropic_api_key=env("ANTHROPIC_API_KEY"),
         gemini_api_key=env("GEMINI_API_KEY") or env("GOOGLE_API_KEY"),
         naver_client_id=env("NAVER_CLIENT_ID"),
@@ -85,4 +92,10 @@ def load_settings() -> Settings:
         instagram_access_token=env("INSTAGRAM_ACCESS_TOKEN"),
         instagram_user_id=env("INSTAGRAM_USER_ID"),
         instagram_graph_version=env("INSTAGRAM_GRAPH_VERSION", "v23.0"),
+        generation_mode=env("GENERATION_MODE", "prompt").lower(),
+        openai_api_key=env("OPENAI_API_KEY"),
+        image_dir=_path("IMAGE_DIR", "./images"),
+        image_provider=env("IMAGE_PROVIDER", "auto").lower(),
+        openai_image_model=env("OPENAI_IMAGE_MODEL", "gpt-image-1-mini"),
+        gemini_image_model=env("GEMINI_IMAGE_MODEL", "gemini-3.1-flash-image"),
     )

@@ -9,6 +9,8 @@
     run.bat "러닝화" --make-images               리포트 + 썸네일 이미지 생성 (images/)
     run.bat --images-from reports\20261002_0019_가을_캠핑.md   기존 리포트로 이미지만
     run.bat --check                          API 키·수집기 상태 확인
+    run.bat --today --list                   이슈 TOP 10 목록만 (기획서 없음)
+    run.bat --pick 2 5                       최근 목록의 2·5위를 상세 작성
 """
 from __future__ import annotations
 
@@ -22,6 +24,7 @@ from agent.config import load_settings
 from agent.generator import FORMATS, generate
 from agent.image_maker import ImageError, run_for_report
 from agent.images import generate_image_prompts
+from agent.issue_list import load_issue_list, save_issue_list
 from agent.llm import LLMError, get_llm
 from agent.prompt_pack import build_request_prompts
 from agent.report import SOURCE_LABEL, save_raw, save_report
@@ -47,6 +50,12 @@ def parse_args(argv=None):
     p.add_argument("--images-from", metavar="REPORT", help="기존 리포트(.md 또는 _images.json)로 이미지만 생성")
     p.add_argument("--image-provider", choices=["auto", "openai", "gemini", "pollinations"],
                    help="이미지 공급자 (기본: .env의 IMAGE_PROVIDER, auto)")
+    p.add_argument("--list", action="store_true",
+                   help="기획서 없이 이슈 TOP N(기본 10) 목록만 저장 (reports/..._issues.md/.json)")
+    p.add_argument("--pick", nargs="+", type=int, metavar="N",
+                   help="이슈 목록에서 고른 순위의 이슈를 상세 작성 (그 이슈의 검색어로 키워드 모드 실행)")
+    p.add_argument("--from", dest="list_from", metavar="LIST",
+                   help="--pick에 쓸 이슈 목록 파일 (기본: 가장 최근 *_issues.json)")
     p.add_argument("--no-raw", action="store_true", help="수집 원본 JSON을 저장하지 않음")
     p.add_argument("--check", action="store_true", help="키·수집기 상태만 출력")
     return p.parse_args(argv)
@@ -84,13 +93,40 @@ def main(argv=None) -> int:
         return 0
     if args.images_from:
         return make_images_for(Path(args.images_from), settings, args.image_provider)
+    if args.pick:
+        return pick_issues(args, settings)
 
     keyword = " ".join(args.keyword).strip() or None
     if not keyword and not args.today and sys.stdin.isatty():
         keyword = input("주제/키워드 입력 (엔터 = 오늘의 트렌드): ").strip() or None
+    return run(args, settings, keyword)
 
+
+def pick_issues(args, settings) -> int:
+    try:
+        src, entries = load_issue_list(settings.report_dir, args.list_from)
+    except (OSError, ValueError, KeyError) as e:
+        print(f"[오류] 이슈 목록을 읽지 못함: {e}", file=sys.stderr)
+        return 2
+    by_rank = {e["rank"]: e for e in entries}
+    missing = [n for n in args.pick if n not in by_rank]
+    if missing:
+        print(f"[오류] 목록({src.name})에 없는 순위: {missing} (1~{len(entries)})", file=sys.stderr)
+        return 2
+    code = 0
+    for n in args.pick:
+        e = by_rank[n]
+        print(f"\n━━ {n}위 {e['title']}  →  검색어 '{e['query']}'")
+        code = max(code, run(args, settings, e["query"]))
+    return code
+
+
+def run(args, settings, keyword: str | None) -> int:
+    mode = settings.generation_mode
     llm = None
-    if mode == "prompt":
+    if args.list:
+        pass  # 목록만 만들 때는 LLM을 쓰지 않는다
+    elif mode == "prompt":
         print("ℹ 프롬프트 모드: LLM API를 호출하지 않고, 웹 LLM에 붙여 넣을 제작 요청 프롬프트를 만듭니다.")
     else:
         try:
@@ -109,7 +145,15 @@ def main(argv=None) -> int:
         return 1
 
     print(f"▶ 분석 ({llm.label if llm else '규칙 기반'})")
-    analysis = analyze(results, keyword, settings, llm, top_issues=args.top)
+    analysis = analyze(results, keyword, settings, llm, top_issues=max(args.top, 10) if args.list else args.top)
+    if args.list:
+        if not args.no_raw:
+            save_raw(analysis, settings.data_dir)
+        path = save_issue_list(analysis, settings.report_dir, top=max(args.top, 10))
+        for i, iss in enumerate(analysis.issues[:10], start=1):
+            print(f"  {i:2}. {iss.score:5.1f}  {iss.title[:60]}")
+        print(f"\n✔ 이슈 목록 저장: {path}\n  상세 작성: run.bat --pick 번호 [번호 ...]")
+        return 0
     for i, iss in enumerate(analysis.issues[:5]):
         print(f"  [{i}] {iss.score:5.1f}  {iss.title[:60]}")
     print(f"  연관 키워드: {', '.join(k.word for k in analysis.keywords[:10])}")

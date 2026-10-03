@@ -1,0 +1,71 @@
+{
+  "by": "템플릿 (LLM 미사용 — 피사체를 영어로 바꿔 쓰세요)",
+  "prompts": [
+    {
+      "issue_index": 0,
+      "issue_title": "천위페이",
+      "usage": "blog_thumbnail",
+      "aspect_ratio": "1:1",
+      "prompt_en": "Square editorial photo about \"천위페이\" (← 영어로 바꿔 넣기), centered main subject, clean background with generous negative space at the top for a headline, soft natural daylight, warm tones, shallow depth of field, 35mm lens, high detail, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "천위페이",
+      "alt_text_ko": "천위페이 천위페이"
+    },
+    {
+      "issue_index": 0,
+      "issue_title": "천위페이",
+      "usage": "reels_cover",
+      "aspect_ratio": "9:16",
+      "prompt_en": "Vertical 9:16 cinematic shot about \"천위페이\" (← 영어로 바꿔 넣기), subject in the lower two-thirds, empty sky or wall in the upper third for caption, golden hour lighting, vivid but natural colors, handheld smartphone look, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "천위페이",
+      "alt_text_ko": "천위페이 천위페이"
+    },
+    {
+      "issue_index": 1,
+      "issue_title": "최준희",
+      "usage": "blog_thumbnail",
+      "aspect_ratio": "1:1",
+      "prompt_en": "Square editorial photo about \"최준희\" (← 영어로 바꿔 넣기), centered main subject, clean background with generous negative space at the top for a headline, soft natural daylight, warm tones, shallow depth of field, 35mm lens, high detail, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "천위페이",
+      "alt_text_ko": "천위페이 최준희"
+    },
+    {
+      "issue_index": 1,
+      "issue_title": "최준희",
+      "usage": "reels_cover",
+      "aspect_ratio": "9:16",
+      "prompt_en": "Vertical 9:16 cinematic shot about \"최준희\" (← 영어로 바꿔 넣기), subject in the lower two-thirds, empty sky or wall in the upper third for caption, golden hour lighting, vivid but natural colors, handheld smartphone look, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "천위페이",
+      "alt_text_ko": "천위페이 최준희"
+    },
+    {
+      "issue_index": 2,
+      "issue_title": "김구라",
+      "usage": "blog_thumbnail",
+      "aspect_ratio": "1:1",
+      "prompt_en": "Square editorial photo about \"김구라\" (← 영어로 바꿔 넣기), centered main subject, clean background with generous negative space at the top for a headline, soft natural daylight, warm tones, shallow depth of field, 35mm lens, high detail, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "천위페이",
+      "alt_text_ko": "천위페이 김구라"
+    },
+    {
+      "issue_index": 2,
+      "issue_title": "김구라",
+      "usage": "reels_cover",
+      "aspect_ratio": "9:16",
+      "prompt_en": "Vertical 9:16 cinematic shot about \"김구라\" (← 영어로 바꿔 넣기), subject in the lower two-thirds, empty sky or wall in the upper third for caption, golden hour lighting, vivid but natural colors, handheld smartphone look, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "천위페이",
+      "alt_text_ko": "천위페이 김구라"
+    }
+  ]
+}

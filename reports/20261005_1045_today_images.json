@@ -1,0 +1,71 @@
+{
+  "by": "템플릿 (LLM 미사용 — 피사체를 영어로 바꿔 쓰세요)",
+  "prompts": [
+    {
+      "issue_index": 0,
+      "issue_title": "브레이브스 대 다저스",
+      "usage": "blog_thumbnail",
+      "aspect_ratio": "1:1",
+      "prompt_en": "Square editorial photo about \"브레이브스 대 다저스\" (← 영어로 바꿔 넣기), centered main subject, clean background with generous negative space at the top for a headline, soft natural daylight, warm tones, shallow depth of field, 35mm lens, high detail, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "브레이브스 대 다저스",
+      "alt_text_ko": "브레이브스 대 다저스 브레이브스 대 다저스"
+    },
+    {
+      "issue_index": 0,
+      "issue_title": "브레이브스 대 다저스",
+      "usage": "reels_cover",
+      "aspect_ratio": "9:16",
+      "prompt_en": "Vertical 9:16 cinematic shot about \"브레이브스 대 다저스\" (← 영어로 바꿔 넣기), subject in the lower two-thirds, empty sky or wall in the upper third for caption, golden hour lighting, vivid but natural colors, handheld smartphone look, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "브레이브스 대 다저스",
+      "alt_text_ko": "브레이브스 대 다저스 브레이브스 대 다저스"
+    },
+    {
+      "issue_index": 1,
+      "issue_title": "미운 우리 새끼",
+      "usage": "blog_thumbnail",
+      "aspect_ratio": "1:1",
+      "prompt_en": "Square editorial photo about \"미운 우리 새끼\" (← 영어로 바꿔 넣기), centered main subject, clean background with generous negative space at the top for a headline, soft natural daylight, warm tones, shallow depth of field, 35mm lens, high detail, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "브레이브스 대 다저스",
+      "alt_text_ko": "브레이브스 대 다저스 미운 우리 새끼"
+    },
+    {
+      "issue_index": 1,
+      "issue_title": "미운 우리 새끼",
+      "usage": "reels_cover",
+      "aspect_ratio": "9:16",
+      "prompt_en": "Vertical 9:16 cinematic shot about \"미운 우리 새끼\" (← 영어로 바꿔 넣기), subject in the lower two-thirds, empty sky or wall in the upper third for caption, golden hour lighting, vivid but natural colors, handheld smartphone look, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "브레이브스 대 다저스",
+      "alt_text_ko": "브레이브스 대 다저스 미운 우리 새끼"
+    },
+    {
+      "issue_index": 2,
+      "issue_title": "임신",
+      "usage": "blog_thumbnail",
+      "aspect_ratio": "1:1",
+      "prompt_en": "Square editorial photo about \"임신\" (← 영어로 바꿔 넣기), centered main subject, clean background with generous negative space at the top for a headline, soft natural daylight, warm tones, shallow depth of field, 35mm lens, high detail, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "브레이브스 대 다저스",
+      "alt_text_ko": "브레이브스 대 다저스 임신"
+    },
+    {
+      "issue_index": 2,
+      "issue_title": "임신",
+      "usage": "reels_cover",
+      "aspect_ratio": "9:16",
+      "prompt_en": "Vertical 9:16 cinematic shot about \"임신\" (← 영어로 바꿔 넣기), subject in the lower two-thirds, empty sky or wall in the upper third for caption, golden hour lighting, vivid but natural colors, handheld smartphone look, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "브레이브스 대 다저스",
+      "alt_text_ko": "브레이브스 대 다저스 임신"
+    }
+  ]
+}

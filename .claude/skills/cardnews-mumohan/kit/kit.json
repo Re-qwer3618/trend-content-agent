@@ -1,0 +1,21 @@
+{
+  "channel": "mumohan",
+  "name": "무모한도전 (trend-content-agent)",
+  "tokens": {
+    "name": "무모한도전",
+    "handle": "@adoni_s3618"
+  },
+  "defaultTemplate": "series",
+  "templates": {
+    "series": "starter의 series 짜임 + 무모한도전 주황 강조색과 도전 테이프. cards.html은 trend-content-agent의 agent/cardnews.py가 _cards.json으로 만든다"
+  },
+  "video": {
+    "background": "#f2f0eb",
+    "text": "#131417",
+    "accent": "#e8541c",
+    "enter": "rise",
+    "idle": [
+      { "selector": ".swipe", "type": "nudge", "amount": 8, "period": 1.6 }
+    ]
+  }
+}

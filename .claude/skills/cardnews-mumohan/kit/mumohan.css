@@ -1,0 +1,20 @@
+/* 무모한도전 채널 스타일. starter의 series 짜임을 그대로 불러오고(키트 파일은 복사하지 않음) 색과 반복 장치만 덧입힌다.
+   반복 장치: 모든 장 아래 가장자리의 사선 "도전 테이프", 표지는 위아래 두 줄. 머리글의 채널 이름은 강조색. */
+@import url("/__kit/starter/starter.css");
+
+:root {
+  --accent: #e8541c;          /* 무모한도전 주황. 흰 글자가 읽히는 진한 주황(표지 바탕·강조 줄·알약·진행 줄) */
+  --tape: repeating-linear-gradient(-45deg, var(--ink) 0 22px, var(--accent) 22px 44px);
+}
+
+/* 도전 테이프: 카드 맨 아래 14px. 마감(진행 줄·버튼)은 테이프 위에 놓인다 */
+.card::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 14px; background: var(--tape); }
+.card .end { margin-bottom: 6px; }
+
+/* 머리글의 채널 이름은 굵은 강조색 */
+.bar span[data-token="name"] { color: var(--accent); font-weight: 800; }
+
+/* 표지: 주황 바탕이라 테이프를 검정·흰 줄로, 위에도 한 줄 */
+.card.cover { --tape: repeating-linear-gradient(-45deg, var(--ink) 0 22px, #ffffff 22px 44px); }
+.card.cover::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 14px; background: var(--tape); }
+.card.cover .bar span[data-token="name"] { color: #ffffff; }

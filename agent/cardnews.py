@@ -104,7 +104,7 @@ def cards_from_analysis(analysis, max_issues: int = 4) -> dict:
         "shot": {"label": "오늘의 출처", "dark": True,
                  "list": [s for _, _, s in shorts[:4]]},
     })
-    return {"version": 1, "style": "series", "channel": os.getenv("CARDNEWS_CHANNEL", "starter"),
+    return {"version": 1, "style": "series",
             "topic": main, "by": "템플릿 (수집 데이터의 제목만 사용)", "cards": cards}
 
 
@@ -171,7 +171,7 @@ def generate_cards(analysis, llm) -> dict:
                                         "title": c.get("title", ""), "desc": c.get("desc"), "shot": shot}.items() if v})
     if not cards:
         raise CardError("LLM이 카드를 만들지 않았습니다")
-    return {"version": 1, "style": "series", "channel": os.getenv("CARDNEWS_CHANNEL", "starter"),
+    return {"version": 1, "style": "series",
             "topic": data.get("topic") or main, "by": llm.label, "cards": cards,
             "caption": data.get("caption", ""), "hashtags": data.get("hashtags", [])}
 
@@ -238,7 +238,7 @@ def build_html(deck: dict, set_dir: Path) -> str:
     style = deck.get("style", "series")
     if style not in STYLES:
         raise CardError(f"지원하지 않는 스타일: {style} (지금은 {', '.join(STYLES)})")
-    channel = deck.get("channel") or os.getenv("CARDNEWS_CHANNEL") or "starter"
+    channel = deck.get("channel") or default_channel()
     if not re.fullmatch(r"[a-z0-9]+", channel):
         raise CardError(f"채널 이름은 영문 소문자·숫자만: {channel}")
     cards = deck.get("cards") or []
@@ -347,6 +347,14 @@ def engine_dir() -> Path:
     local = PROJECT_DIR / ".claude" / "skills" / "cardnews-engine" / "scripts"  # 프로젝트 스킬 (기본)
     glob_ = Path.home() / ".claude" / "skills" / "cardnews-engine" / "scripts"
     return local if local.is_dir() or not glob_.is_dir() else glob_
+
+
+def default_channel() -> str:
+    """카드 머리글·색을 정하는 채널 키트: .env의 CARDNEWS_CHANNEL > 무모한도전 키트(cardnews-mumohan, 이 저장소) > starter."""
+    if os.getenv("CARDNEWS_CHANNEL"):
+        return os.environ["CARDNEWS_CHANNEL"]
+    skills = engine_dir().parent.parent
+    return "mumohan" if (skills / "cardnews-mumohan" / "kit" / "kit.json").is_file() else "starter"
 
 
 def check_engine() -> tuple[bool, str]:

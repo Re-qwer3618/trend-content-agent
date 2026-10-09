@@ -30,7 +30,7 @@ STOPWORDS = set(
     "기자 뉴스 오늘 사진 관련 위해 대한 통해 있다 없다 그리고 지난 이번 최근 대표 공개 진행 영상 단독 속보 종합 "
     "가장 정말 진짜 우리 이런 그런 어떤 모든 하나 때문 이후 이전 경우 정도 사실 생각 내용 이상 이하 "
     "올해 내년 작년 오전 오후 기준 발표 예정 가능 확인 제공 맞아 맞이 추진 개최 포착 실시 운영 "
-    "좋은 많은 다양한 함께 구독 좋아요 알림 채널 문의 instagram "
+    "좋은 많은 다양한 함께 구독 좋아요 알림 채널 문의 instagram vlog 브이로그 즐기 "
     "the and for with you this that from "
     "shorts youtube video official".split()
 )
@@ -167,7 +167,8 @@ def _popularity(items: list[TrendItem]) -> dict[int, float]:
     for group in by_source.values():
         top = max((math.log1p(i.metric) for i in group), default=0)
         for i in group:
-            out[id(i)] = (math.log1p(i.metric) / top) if top else 0.3
+            # 지표가 없는 소스(뉴스 등)는 중간보다 약간 높은 값 — 0.3이면 조회수 있는 유튜브만 상위를 독차지했다
+            out[id(i)] = (math.log1p(i.metric) / top) if top else 0.75
     return out
 
 

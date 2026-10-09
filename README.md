@@ -73,13 +73,44 @@ trend-content-agent/
 │  ├─ generator.py          기획서 → 완성본 2단계 생성 + LLM 없을 때 템플릿
 │  ├─ images.py             이미지 생성 프롬프트 (LLM 없으면 템플릿)
 │  ├─ image_maker.py        프롬프트 → 실제 이미지 (OpenAI / Gemini / Pollinations 무료)
+│  ├─ shorts_maker.py       쇼츠 영상: edge-tts 나레이션 + 단어 타이밍 자막 + 스톡 영상/이미지 → mp4
 │  ├─ report.py             마크다운 리포트·원본 JSON 저장
 │  └─ prompts/              system.md, blog.md, reels.md (기획서), blog_draft.md, reels_script.md (완성본)
 ├─ .github/workflows/trend_bot.yml   매일 자동 실행 (GitHub Actions)
 ├─ reports/                 생성된 리포트 (git 제외)
 ├─ images/                  생성된 이미지 (git 제외)
+├─ videos/                  생성된 쇼츠 영상 (git 제외)
+├─ assets/bgm/              배경음악 넣는 곳 (선택, git 제외)
 └─ data/raw/                수집 원본 (git 제외)
 ```
+
+## 쇼츠·릴스 영상 자동 제작 (agent/shorts_maker.py)
+
+```bat
+run.bat "가을 캠핑" --make-video                          :: 리포트 → 이미지 → 쇼츠 mp4 까지 한 번에 (전부 무료)
+run.bat --video-from reports\20261002_0019_가을_캠핑.md     :: 대본 파일을 고친 뒤 영상만 다시 만들기
+run.bat --video-from reports\…md --script 대본.txt --voice male   :: 웹 LLM이 쓴 대본 + 남성 음성
+```
+
+[MoneyPrinterTurbo](https://github.com/harry0703/MoneyPrinterTurbo)(MIT)의 파이프라인 구성을 참고해 이 프로젝트에 맞게 다시 작성했습니다.
+
+1. **대본** — 리포트를 만들 때 `…_쇼츠대본.txt`가 자동 저장됩니다(훅 → 상위 이슈 3개 → 저장 유도, 약 30초).
+   API 모드면 LLM이 쓴 촬영 대본을, 프롬프트 모드면 `_요청_reels.txt` 결과를 이 파일에 붙여 넣어 쓰면 됩니다.
+2. **나레이션** — edge-tts 한국어 음성(선희·인준·현수, 무료). 단어 단위 타이밍을 받아 **말과 정확히 맞는 자막**을 만듭니다.
+3. **화면** — 장면마다 `PEXELS_API_KEY`가 있으면 Pexels 세로 스톡 영상, 없으면 그 이슈의 생성 이미지를 흐린 배경 + 천천히 흐르는 전경으로.
+4. **합성** — 1080×1920·30fps mp4, 상단 장면 제목(노랑) + 하단 나레이션 자막(흰색, 인스타 UI에 안 가리는 위치), 장면 전환 페이드,
+   `assets/bgm/`에 음원을 넣으면 배경음악. 프레임을 numpy로 직접 합성해 30초 영상이 **약 20초**에 만들어집니다.
+
+결과: `videos\<리포트>\shorts.mp4`, `subtitles.srt`(업로드 시 자막 파일로도 사용), `script.txt`.
+
+- edge-tts는 Microsoft Edge 읽어주기 서비스를 쓰는 비공식 라이브러리라, 너무 자주 호출하면 막힐 수 있습니다.
+- 무료 이미지(Pollinations)는 워터마크·768px 제한이 있어 화질이 거칩니다. Pexels 키(무료)를 넣거나 직접 촬영 영상을 쓰면 좋아집니다.
+
+## 블로그 원고 품질 (STORM 방식)
+
+`agent/prompts/blog_draft.md`의 작성 절차에 [STORM](https://github.com/stanford-oval/storm)(MIT)의
+"독자 관점 정하기 → 관점별 질문 → 질문마다 근거 검색 → 개요 → 집필 → 다듬기" 흐름을 넣었습니다.
+API 모드와 웹 LLM용 제작 요청 프롬프트 양쪽에 같이 적용되며, 원고에 **FAQ 3개**와 **참고 자료 목록**이 추가됩니다.
 
 ## 이미지 생성 (agent/image_maker.py)
 

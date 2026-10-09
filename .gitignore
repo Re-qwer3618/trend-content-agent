@@ -5,5 +5,8 @@ data/
 logs/
 reports/
 images/
+videos/
+assets/bgm/*
+!assets/bgm/README.md
 __pycache__/
 *.pyc

@@ -71,6 +71,7 @@ class Settings:
             "YOUTUBE_API_KEY": bool(self.youtube_api_key),
             "INSTAGRAM_ACCESS_TOKEN/USER_ID": bool(self.instagram_access_token and self.instagram_user_id),
             "OPENAI_API_KEY (이미지)": bool(self.openai_api_key),
+            "PEXELS_API_KEY (쇼츠 스톡 영상)": bool(os.getenv("PEXELS_API_KEY")),
         }
 
 

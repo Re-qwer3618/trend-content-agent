@@ -173,6 +173,9 @@ def make_images(prompts: list[ImagePrompt], settings: Settings, out_dir: Path,
             log(f"  - {name}: 건너뜀 ({e})")
     results = []
     for p in prompts:
+        if is_untranslated(p):
+            results.append(MadeImage(p, None, "-", "영문 변환 실패로 건너뜀"))
+            continue
         made = None
         while engines and made is None:
             eng = engines[0]
@@ -301,22 +304,29 @@ def ensure_english(prompts: list[ImagePrompt], settings: Settings, log=print) ->
             text = llm.text("You write prompts for image generation models.", q)
         except LLMError:
             pass  # 크레딧 부족 등 → 무료 API로
-    if not text:
+    for attempt in range(3):  # 무료 서버의 500·429는 대개 잠깐이라 몇 번 기다렸다 다시
+        if text:
+            break
         try:
             r = requests.post("https://text.pollinations.ai/openai", timeout=120,
                               json={"model": "openai", "messages": [{"role": "user", "content": q}]})
             r.raise_for_status()
             text = r.json()["choices"][0]["message"]["content"]
         except (requests.RequestException, KeyError, ValueError) as e:
-            log(f"  - 영문 변환 실패 ({type(e).__name__}) — 원래 프롬프트 사용")
-            return prompts
+            log(f"  - 영문 변환 실패 ({type(e).__name__}, {attempt + 1}/3)")
+            time.sleep(15 * (attempt + 1))
     lines = {int(m.group(1)): m.group(2).strip().strip('"`')
              for m in map(_LINE_RE.match, text.splitlines()) if m}
     fixed = {id(p): replace(p, prompt_en=lines[n]) for n, p in enumerate(todo, start=1)
              if n in lines and not _HANGUL.search(lines[n])}
     if len(fixed) < len(todo):
-        log(f"  - {len(todo) - len(fixed)}개는 변환 결과가 없어 원래 프롬프트 사용")
+        log(f"  - {len(todo) - len(fixed)}개는 영문으로 바꾸지 못해 이번엔 건너뜀 (한글 제목 그대로면 엉뚱한 그림이 나옴) "
+            f"— 나중에 --images-from 으로 다시 시도")
     return [fixed.get(id(p), p) for p in prompts]
+
+
+def is_untranslated(p: ImagePrompt) -> bool:
+    return bool(_HANGUL.search(p.prompt_en))
 
 
 # ---------------------------------------------------------------- 유틸

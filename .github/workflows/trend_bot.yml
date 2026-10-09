@@ -2,14 +2,17 @@
 #
 # 설정 (GitHub 저장소 > Settings > Secrets and variables > Actions)
 #   Secrets   : ANTHROPIC_API_KEY, GEMINI_API_KEY, NAVER_CLIENT_ID, NAVER_CLIENT_SECRET,
-#               YOUTUBE_API_KEY, OPENAI_API_KEY, POLLINATIONS_TOKEN   (없는 건 비워 두면 해당 기능만 건너뜀)
+#               YOUTUBE_API_KEY, OPENAI_API_KEY, POLLINATIONS_TOKEN, PEXELS_API_KEY
+#               (없는 건 비워 두면 해당 기능만 건너뜀)
 #   Variables : TREND_KEYWORDS  매일 돌릴 키워드, 쉼표로 구분 (예: 가을 캠핑,러닝화). 비우면 '오늘의 트렌드' 모드
 #               GENERATION_MODE prompt(기본, LLM API 비용 0) | api | auto
 #               LLM_PROVIDER    auto | claude | gemini | none   (기본 auto)
 #               IMAGE_PROVIDER  auto | openai | gemini | pollinations (기본 auto)
 #               MAKE_IMAGES     true 면 썸네일 이미지까지 생성 (기본 false)
+#               MAKE_VIDEO      true 면 쇼츠 영상(mp4)까지 생성 — 이미지도 함께 만든다 (기본 false)
 #
 # 결과: `reports` 브랜치의 reports/, images/ 폴더 (GitHub 웹·모바일에서 바로 열람) + 실행별 Artifact(30일 보관)
+#       영상(videos/)은 저장소가 커지지 않게 Artifact로만 올린다 (Actions 실행 화면 하단에서 내려받기)
 # 수동 실행: Actions 탭 > trend-bot > Run workflow (키워드 직접 입력 가능)
 
 name: trend-bot
@@ -25,6 +28,10 @@ on:
         default: ""
       make_images:
         description: "썸네일 이미지도 생성"
+        type: boolean
+        default: false
+      make_video:
+        description: "쇼츠 영상(mp4)도 생성"
         type: boolean
         default: false
 
@@ -49,6 +56,7 @@ jobs:
       YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       POLLINATIONS_TOKEN: ${{ secrets.POLLINATIONS_TOKEN }}
+      PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
       GENERATION_MODE: ${{ vars.GENERATION_MODE || 'prompt' }}
       LLM_PROVIDER: ${{ vars.LLM_PROVIDER || 'auto' }}
       IMAGE_PROVIDER: ${{ vars.IMAGE_PROVIDER || 'auto' }}
@@ -64,6 +72,10 @@ jobs:
       - name: Install
         run: pip install -r requirements.txt
 
+      - name: Korean font (shorts subtitles)
+        if: ${{ github.event.inputs.make_video == 'true' || vars.MAKE_VIDEO == 'true' }}
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq fonts-noto-cjk
+
       - name: Key status
         run: python main.py --check
 
@@ -72,10 +84,12 @@ jobs:
           INPUT_KEYWORDS: ${{ github.event.inputs.keywords }}
           VAR_KEYWORDS: ${{ vars.TREND_KEYWORDS }}
           MAKE_IMAGES: ${{ github.event.inputs.make_images || vars.MAKE_IMAGES || 'false' }}
+          MAKE_VIDEO: ${{ github.event.inputs.make_video || vars.MAKE_VIDEO || 'false' }}
         run: |
           KEYWORDS="${INPUT_KEYWORDS:-$VAR_KEYWORDS}"
           FLAGS=""
           [ "$MAKE_IMAGES" = "true" ] && FLAGS="--make-images"
+          [ "$MAKE_VIDEO" = "true" ] && FLAGS="--make-video"
           failed=0
           if [ -z "$(echo "$KEYWORDS" | tr -d ' ,')" ]; then
             python main.py --today $FLAGS || failed=1
@@ -99,6 +113,9 @@ jobs:
           path: |
             reports/
             images/
+            videos/**/*.mp4
+            videos/**/*.srt
+            videos/**/script.txt
           if-no-files-found: ignore
           retention-days: 30
 

@@ -8,11 +8,14 @@
     run.bat "러닝화" --no-draft --no-web        기획서만 (빠르고 저렴)
     run.bat "러닝화" --make-images               리포트 + 썸네일 이미지 생성 (images/)
     run.bat --images-from reports\20261002_0019_가을_캠핑.md   기존 리포트로 이미지만
+    run.bat "가을 캠핑" --make-video            리포트 + 이미지 + 쇼츠 영상(mp4, 나레이션·자막) — 전부 무료
+    run.bat --video-from reports\…_가을_캠핑.md --script 대본.txt   웹 LLM이 쓴 대본으로 영상 다시 만들기
     run.bat --check                          API 키·수집기 상태 확인
 """
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -24,6 +27,8 @@ from agent.image_maker import ImageError, run_for_report
 from agent.images import generate_image_prompts
 from agent.llm import LLMError, get_llm
 from agent.prompt_pack import build_request_prompts
+from agent.shorts_maker import (SCRIPT_HEADER, ShortsError, make_shorts, parse_script, scenes_from_analysis,
+                                scenes_to_text)
 from agent.report import SOURCE_LABEL, save_raw, save_report
 
 
@@ -47,6 +52,11 @@ def parse_args(argv=None):
     p.add_argument("--images-from", metavar="REPORT", help="기존 리포트(.md 또는 _images.json)로 이미지만 생성")
     p.add_argument("--image-provider", choices=["auto", "openai", "gemini", "pollinations"],
                    help="이미지 공급자 (기본: .env의 IMAGE_PROVIDER, auto)")
+    p.add_argument("--make-video", action="store_true",
+                   help="쇼츠 영상(mp4)까지 생성 — 이미지가 없으면 먼저 만든다 (videos/)")
+    p.add_argument("--video-from", metavar="REPORT", help="기존 리포트의 쇼츠 대본(…_쇼츠대본.txt)으로 영상만 다시 생성")
+    p.add_argument("--script", metavar="FILE", help="--video-from 과 함께: 웹 LLM이 쓴 대본 파일을 대신 사용")
+    p.add_argument("--voice", choices=["female", "male", "multi"], help="나레이션 음성 (기본 female)")
     p.add_argument("--no-raw", action="store_true", help="수집 원본 JSON을 저장하지 않음")
     p.add_argument("--check", action="store_true", help="키·수집기 상태만 출력")
     return p.parse_args(argv)
@@ -82,8 +92,12 @@ def main(argv=None) -> int:
     if args.check:
         check(settings)
         return 0
+    if args.voice:
+        os.environ["SHORTS_VOICE"] = args.voice
     if args.images_from:
         return make_images_for(Path(args.images_from), settings, args.image_provider)
+    if args.video_from:
+        return make_video_for(Path(args.video_from), settings, Path(args.script) if args.script else None)
 
     keyword = " ".join(args.keyword).strip() or None
     if not keyword and not args.today and sys.stdin.isatty():
@@ -144,8 +158,48 @@ def main(argv=None) -> int:
             print(f"  └ {p.title} 완성본도 같은 폴더에 따로 저장")
     for r in requests:
         print(f"  └ 제작 요청 프롬프트: {path.stem}_요청_{r.key}.txt")
-    if args.make_images and images:
-        return make_images_for(path, settings, args.image_provider)
+
+    # 쇼츠 대본: API가 쓴 촬영 대본이 있으면 그것을, 없으면 상위 이슈로 만든 나레이션을 저장 (고쳐서 다시 렌더링 가능)
+    reels = next((p for p in plans if p.format == "reels" and p.draft), None)
+    scenes = parse_script(reels.draft) if reels else []
+    if not scenes and analysis.issues:
+        scenes = scenes_from_analysis(analysis)
+    if scenes:
+        shorts_script_path(path).write_text(scenes_to_text(scenes, SCRIPT_HEADER), encoding="utf-8")
+        print(f"  └ 쇼츠 대본: {shorts_script_path(path).name}")
+
+    if (args.make_images or args.make_video) and images:
+        rc = make_images_for(path, settings, args.image_provider)
+        if rc and not args.make_video:
+            return rc
+    if args.make_video and scenes:
+        return make_video_for(path, settings)
+    return 0
+
+
+def shorts_script_path(report: Path) -> Path:
+    return report.with_name(f"{report.stem}_쇼츠대본.txt")
+
+
+def make_video_for(report: Path, settings, script: Path | None = None) -> int:
+    report = report.resolve()
+    script = script or shorts_script_path(report)
+    if not script.exists():
+        print(f"[오류] 대본 파일이 없습니다: {script}", file=sys.stderr)
+        return 1
+    scenes = parse_script(script.read_text(encoding="utf-8"))
+    if not scenes:
+        print(f"[오류] 대본에서 '[컷 N] … 나레이션:' 블록을 찾지 못했습니다: {script.name}", file=sys.stderr)
+        return 1
+    print(f"▶ 쇼츠 영상 생성: 장면 {len(scenes)}개 ({script.name})")
+    try:
+        r = make_shorts(settings, report, scenes)
+    except (ShortsError, OSError) as e:
+        print(f"[오류] {e}", file=sys.stderr)
+        return 1
+    print(f"✔ 쇼츠 저장: {r.video}  ({r.duration:.1f}초, 자막 {r.srt.name})")
+    for s in r.sources:
+        print(f"  · {s}")
     return 0
 
 

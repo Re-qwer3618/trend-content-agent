@@ -2,3 +2,7 @@ python-dotenv>=1.0.0
 requests>=2.31
 anthropic>=1.8
 google-genai>=2.0
+# 쇼츠 영상 (shorts_maker.py) — MoneyPrinterTurbo와 같은 조합
+moviepy>=2.2,<3
+edge-tts>=7.2
+numpy>=2.0

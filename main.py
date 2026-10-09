@@ -12,6 +12,7 @@
     run.bat --video-from reports\…_가을_캠핑.md --script 대본.txt   웹 LLM이 쓴 대본으로 영상 다시 만들기
     run.bat "가을 캠핑" --make-cards            리포트 + 카드뉴스 PNG (cardnews-kit 스킬, 무료·로컬)
     run.bat --cards-from reports\…_가을_캠핑.md   고친 카드 문구(…_cards.json)로 카드만 다시 굽기
+    run.bat --cards-from reports\…md --cards-file 답변.txt   웹 LLM 답변의 카드 JSON으로 굽기
     run.bat --check                          API 키·수집기 상태 확인
     run.bat --today --list                   이슈 TOP 10 목록만 (기획서 없음)
     run.bat --pick 2 5                       최근 목록의 2·5위를 상세 작성
@@ -26,7 +27,8 @@ import sys
 from pathlib import Path
 
 from agent.analyzer import analyze
-from agent.cardnews import CardError, cards_from_analysis, cards_json_path, check_engine, load_deck, render_deck
+from agent.cardnews import (CardError, cards_from_analysis, cards_json_path, check_engine, extract_deck,
+                            generate_cards, load_deck, render_deck)
 from agent.collectors import COLLECTORS, collect_all
 from agent.config import load_settings
 from agent.generator import FORMATS, generate
@@ -67,6 +69,8 @@ def parse_args(argv=None):
     p.add_argument("--make-cards", action="store_true",
                    help="인스타 피드 카드뉴스 PNG까지 생성 (cardnews-kit 스킬 필요, images/<리포트>/cards/)")
     p.add_argument("--cards-from", metavar="REPORT", help="기존 리포트의 카드 문구(…_cards.json)로 카드만 다시 굽기")
+    p.add_argument("--cards-file", metavar="FILE",
+                   help="--cards-from 과 함께: 웹 LLM 답변(카드 JSON 코드 블록)이나 JSON 파일을 그 리포트의 카드 문구로 저장 후 굽기")
     p.add_argument("--voice", choices=["female", "male", "multi"], help="나레이션 음성 (기본 female)")
     p.add_argument("--list", action="store_true",
                    help="기획서 없이 이슈 TOP N(기본 10) 목록만 저장 (reports/..._issues.md/.json)")
@@ -116,7 +120,7 @@ def main(argv=None) -> int:
     if args.images_from:
         return make_images_for(Path(args.images_from), settings, args.image_provider)
     if args.cards_from:
-        return make_cards_for(Path(args.cards_from), settings)
+        return make_cards_for(Path(args.cards_from), settings, Path(args.cards_file) if args.cards_file else None)
     if args.video_from:
         return make_video_for(Path(args.video_from), settings, Path(args.script) if args.script else None)
     if args.pick:
@@ -224,12 +228,20 @@ def run(args, settings, keyword: str | None) -> int:
         shorts_script_path(path).write_text(scenes_to_text(scenes, SCRIPT_HEADER), encoding="utf-8")
         print(f"  └ 쇼츠 대본: {shorts_script_path(path).name}")
 
-    # 카드뉴스 문구: 상위 이슈로 기본본을 저장 (Claude·웹 LLM이 쓴 문구로 덮어쓰고 --cards-from으로 다시 굽기)
+    # 카드뉴스 문구: API 모드면 LLM이(prompts/cards.md), 아니면 상위 이슈로 기본본
+    # (Claude·웹 LLM이 쓴 문구로 덮어쓰고 --cards-from [--cards-file]로 다시 굽기)
     if analysis.issues:
+        deck = None
+        if llm:
+            print("▶ 생성: 카드뉴스 문구")
+            try:
+                deck = generate_cards(analysis, llm)
+            except (LLMError, CardError, KeyError, ValueError) as e:
+                print(f"  ! 카드뉴스 문구 LLM 생성 실패 → 기본본 사용: {e}")
         try:
-            cards_json_path(path).write_text(
-                json.dumps(cards_from_analysis(analysis), ensure_ascii=False, indent=2), encoding="utf-8")
-            print(f"  └ 카드뉴스 문구: {cards_json_path(path).name}")
+            deck = deck or cards_from_analysis(analysis)
+            cards_json_path(path).write_text(json.dumps(deck, ensure_ascii=False, indent=2), encoding="utf-8")
+            print(f"  └ 카드뉴스 문구: {cards_json_path(path).name} ({deck.get('by', '')})")
         except CardError as e:
             print(f"  ! 카드뉴스 문구 생략: {e}")
 
@@ -270,9 +282,17 @@ def make_video_for(report: Path, settings, script: Path | None = None) -> int:
     return 0
 
 
-def make_cards_for(report: Path, settings) -> int:
+def make_cards_for(report: Path, settings, answer: Path | None = None) -> int:
     report = report.resolve()
     src = cards_json_path(report)
+    if answer:  # 웹 LLM 답변 → 이 리포트의 카드 문구로 저장
+        try:
+            deck = extract_deck(answer.read_text(encoding="utf-8"))
+        except (CardError, OSError) as e:
+            print(f"[오류] {answer.name}: {e}", file=sys.stderr)
+            return 1
+        src.write_text(json.dumps(deck, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"  └ {answer.name}의 카드 {len(deck['cards'])}장 → {src.name}")
     if not src.exists():
         print(f"[오류] 카드 문구 파일이 없습니다: {src}", file=sys.stderr)
         return 1

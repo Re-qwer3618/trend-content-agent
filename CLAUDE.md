@@ -27,4 +27,6 @@
 - Claude가 직접 쓰는 글(노션 상세 리포트, "N번 작성해줘")의 문체·구조는 스킬 `.claude/skills/trend-content-style/`이 기준.
   원천은 사용자의 노션 작성 팁 페이지 2개(스킬 SKILL.md에 링크). 팁이 바뀌면 "스타일 업데이트"로 다시 반영.
   같은 규칙이 `agent/prompts/*.md`(웹 LLM 요청 프롬프트·API 모드)에도 들어 있으니 둘을 같이 고친다. `channels.md`는 피드+유튜브용이며 요청 프롬프트로만 쓴다.
+- 카드뉴스 PNG는 cardnews-kit 스킬(`.claude/skills/cardnews-*`, git 제외·PC마다 설치)이 굽는다. 카드 문구 JSON 규칙은 `agent/prompts/cards.md` 하나를
+  요청 프롬프트(`channels.md`의 include)·API 모드·스킬이 같이 쓴다. Windows에서 한글 경로면 렌더러가 죽어서 영문 임시 폴더에서 굽는다.
 - 작성 지침(`agent/prompts/*.md`)은 API 모드와 프롬프트 모드가 같이 씁니다 — 한쪽만 고치는 지침은 없습니다.

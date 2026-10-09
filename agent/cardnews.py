@@ -3,8 +3,9 @@
 카드 그리기는 cardnews-kit 스킬(cardnews-engine의 render.cjs: 로컬 Chrome으로 1080×1350 PNG, 넘침·작은 글자·어색한 줄바꿈 검사)에 맡긴다.
 키트는 프로젝트 `.claude/skills/`에 두되 git에는 넣지 않는다(재배포 라이선스 없음, 공개 저장소) — PC마다 복사 후 `npm install`.
 
-카드 문구 파일 (`reports/<리포트>_cards.json`) — 리포트를 만들 때 상위 이슈로 기본본을 저장하고,
-Claude·웹 LLM이 쓴 문구로 덮어쓴 뒤 `run.bat --cards-from <리포트>`로 다시 굽는다.
+카드 문구 파일 (`reports/<리포트>_cards.json`) — 리포트를 만들 때 저장한다(API 모드는 LLM, 아니면 상위 이슈로 기본본).
+Claude가 쓴 문구로 덮어쓰거나 웹 LLM 답변을 `--cards-file`로 넘겨 `run.bat --cards-from <리포트>`로 다시 굽는다.
+작성 규칙은 prompts/cards.md (요청 프롬프트·API 모드·스킬 공통).
 
     {"style": "series", "channel": "starter", "topic": "가을 캠핑",
      "cards": [{"type": "cover" | "page" | "closing", "name": "영문-파일이름", "pill": "01 / 03",
@@ -107,6 +108,92 @@ def cards_from_analysis(analysis, max_issues: int = 4) -> dict:
             "topic": main, "by": "템플릿 (수집 데이터의 제목만 사용)", "cards": cards}
 
 
+# ---------------------------------------------------------------- LLM이 쓰는 문구 (API 모드 / 웹 LLM 답변)
+
+# 구조화 출력용 평평한 스키마 — 화면 칸을 kind + items(key/value)로 받아 덱 형식으로 바꾼다
+CARDS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "topic": {"type": "string"},
+        "cards": {"type": "array", "items": {
+            "type": "object",
+            "properties": {
+                "type": {"type": "string", "enum": ["cover", "page", "closing"]},
+                "name": {"type": "string", "description": "영문 소문자·숫자·하이픈"},
+                "pill": {"type": "string"},
+                "title": {"type": "string", "description": "\\n 줄바꿈, *강조*"},
+                "desc": {"type": "string"},
+                "shot_kind": {"type": "string", "enum": ["rows", "list", "table", "checks", "text"]},
+                "shot_label": {"type": "string", "description": "근거(예: 기사 제목 · 언론사 날짜). checks는 빈 문자열"},
+                "shot_dark": {"type": "boolean"},
+                "shot_items": {"type": "array", "items": {
+                    "type": "object",
+                    "properties": {"key": {"type": "string", "description": "rows·table의 이름 칸, 나머지는 빈 문자열"},
+                                   "value": {"type": "string"}},
+                    "required": ["key", "value"], "additionalProperties": False}},
+            },
+            "required": ["type", "name", "pill", "title", "desc", "shot_kind", "shot_label", "shot_dark", "shot_items"],
+            "additionalProperties": False}},
+        "caption": {"type": "string"},
+        "hashtags": {"type": "array", "items": {"type": "string"}},
+    },
+    "required": ["topic", "cards", "caption", "hashtags"],
+    "additionalProperties": False,
+}
+
+
+def generate_cards(analysis, llm) -> dict:
+    """API 모드: 카드뉴스 문구를 LLM으로 (규칙은 prompts/cards.md — 웹 LLM 요청 프롬프트·스킬과 같은 파일)."""
+    from .analyzer import digest
+    from .generator import _prompt
+
+    main = analysis.insight.get("seo_keywords", {}).get("main") or analysis.keyword or ""
+    system = _prompt("system") + "\n\n" + _prompt("cards")
+    request = (f"아래 리서치로 인스타그램 피드 카드뉴스 문구를 만들어 줘. 메인 키워드: {main}\n"
+               "화면 칸은 shot_kind + shot_items로 준다: rows·table은 key/value, list·checks는 value만, "
+               "text는 shot_items 하나의 value에 문장.\n\n" + digest(analysis, with_urls=True))
+    data = llm.json(system, request, CARDS_SCHEMA)
+    cards = []
+    for c in data.get("cards", []):
+        items, kind = c.get("shot_items") or [], c.get("shot_kind")
+        if kind in ("rows", "table"):
+            value = [[i["key"], i["value"]] for i in items]
+        elif kind == "text":
+            value = items[0]["value"] if items else ""
+        else:
+            value = [i["value"] for i in items]
+        shot = {kind: value} if value else {}
+        if shot and c.get("shot_label"):
+            shot["label"] = c["shot_label"]
+        if shot and c.get("shot_dark"):
+            shot["dark"] = True
+        cards.append({k: v for k, v in {"type": c.get("type", "page"), "name": c.get("name"), "pill": c.get("pill"),
+                                        "title": c.get("title", ""), "desc": c.get("desc"), "shot": shot}.items() if v})
+    if not cards:
+        raise CardError("LLM이 카드를 만들지 않았습니다")
+    return {"version": 1, "style": "series", "channel": os.getenv("CARDNEWS_CHANNEL", "starter"),
+            "topic": data.get("topic") or main, "by": llm.label, "cards": cards,
+            "caption": data.get("caption", ""), "hashtags": data.get("hashtags", [])}
+
+
+_FENCE_RE = re.compile(r"(?:```|~~~)[ \t]*(?:json)?[ \t]*\n(.*?)(?:```|~~~)", re.S)
+
+
+def extract_deck(text: str) -> dict:
+    """웹 LLM 답변(또는 JSON 파일)에서 카드뉴스 JSON을 꺼낸다 — 코드 블록 중 cards가 있는 것, 없으면 본문 전체."""
+    candidates = _FENCE_RE.findall(text) + [text, text[text.find("{"):text.rfind("}") + 1]]
+    for chunk in candidates:
+        try:
+            deck = json.loads(chunk)
+        except (json.JSONDecodeError, ValueError):
+            continue
+        if isinstance(deck, dict) and isinstance(deck.get("cards"), list) and deck["cards"]:
+            deck.setdefault("style", "series")
+            deck.setdefault("by", "웹 LLM 답변")
+            return deck
+    raise CardError("카드뉴스 JSON(cards 배열이 든 코드 블록)을 찾지 못했습니다")
+
+
 def _headline(body: str, keyword: str, lo: int = 8, hi: int = 20) -> str:
     """제목을 쉼표로 나눠 키워드 낱말이 가장 많이 든 조각(lo~hi자)을 고른다. 없으면 ''."""
     words = [w for w in keyword.split() if len(w) >= 2]
@@ -151,7 +238,7 @@ def build_html(deck: dict, set_dir: Path) -> str:
     style = deck.get("style", "series")
     if style not in STYLES:
         raise CardError(f"지원하지 않는 스타일: {style} (지금은 {', '.join(STYLES)})")
-    channel = deck.get("channel") or "starter"
+    channel = deck.get("channel") or os.getenv("CARDNEWS_CHANNEL") or "starter"
     if not re.fullmatch(r"[a-z0-9]+", channel):
         raise CardError(f"채널 이름은 영문 소문자·숫자만: {channel}")
     cards = deck.get("cards") or []

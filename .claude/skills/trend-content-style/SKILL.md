@@ -43,7 +43,8 @@ description: 트렌드 리포트로 블로그·인스타그램 피드·릴스·�
 3. 핵심 이슈 표 (제목=원문 링크, 점수, 플랫폼, 언론사/채널, 날짜) — 리포트 데이터 그대로
 3-1. `## 🖼 썸네일 시안` — 블로그 썸네일 1:1 · 릴스 커버 9:16 이미지를 `<columns>` 두 칸에, 각각 아래에 "얹을 문구". 이어서 회색 callout로 "무료 생성기 시안 — 최종본은 프롬프트로 재생성" 안내(주제와 어긋난 시안은 재생성 권장이라고 적는다)
 4. `# 📝 블로그 {toggle="true" color="blue_bg"}` — references/blog.md
-5. `# 🖼️ 인스타그램 피드 {toggle="true" color="pink_bg"}` — references/instagram-feed.md
+5. `# 🖼️ 인스타그램 피드 {toggle="true" color="pink_bg"}` — references/instagram-feed.md.
+   카드 문구를 쓴 뒤 **카드 PNG까지 구워 싣는다** — 아래 "카드뉴스 굽기"
 6. `# 🎬 인스타그램 릴스 {toggle="true" color="red_bg"}` — references/reels.md
 7. `# ▶️ 유튜브 {toggle="true" color="purple_bg"}` — references/youtube.md (이슈가 영상화에 안 맞으면 "이 이슈는 유튜브 비추천 — 이유" 한 줄)
 8. `🤖 제작 요청 프롬프트` — 리포트의 `_요청_blog.txt`, `_요청_reels.txt`, `_요청_channels.txt`(피드+유튜브).
@@ -51,6 +52,7 @@ description: 트렌드 리포트로 블로그·인스타그램 피드·릴스·�
 9. 통합 발행 전 체크리스트 (to-do)
    - 모든 채널의 핵심 메시지·CTA가 일치하는가 / 메인·서브 키워드 반영 / 채널별 문체·길이
    - `[확인 필요]`·`[경험]` 칸을 모두 채웠는가 / 사실·링크 검증 / 이미지·영상 권리 확인
+   - 카드뉴스 자동 검사 경고 0건 / 모아보기로 겹침·여백 확인
 10. 🔗 부록 — 수집한 원문 링크(접힌 블록)
 
 각 채널 토글 안에는 원천 템플릿처럼 **검수 결과**(종합 판정: 발행 가능 / 보완 후 발행 / 보완 필요 + 이유 한 줄)를 함께 둔다.
@@ -70,6 +72,16 @@ description: 트렌드 리포트로 블로그·인스타그램 피드·릴스·�
 4. 생성된 이미지를 Read로 확인하고, 주제와 어긋나면 그 사실을 callout에 적는다.
 5. 노션 업로드: 파일마다 `notion-create-file-upload` → 받은 `upload_url`에 `curl -X POST -H "authorization: Bearer <token>" -F "file=@<경로>"` → 페이지에 `<image src="file-upload://ID"></image>`.
 
+## 카드뉴스 굽기
+
+1. 피드 카드 문구를 `agent/prompts/cards.md` 규칙의 JSON으로 `reports/<리포트>_cards.json`에 쓴다(리포트 실행 때 생긴 기본본을 덮어씀).
+   웹 LLM 요청 프롬프트(`_요청_channels.txt`)·API 모드도 같은 파일 규칙을 쓴다.
+2. `run.bat --cards-from reports\<리포트>.md` → `images/<리포트>/cards/out/NN-이름.png`, 모아보기 `preview/sheet.png`.
+   사용자가 웹 LLM 답변을 줬으면 파일로 저장해 `--cards-file 답변.txt`를 붙인다.
+3. 경고(`!` 줄: 넘침·작은 글자·어색한 줄바꿈)가 있으면 JSON을 고쳐 다시 굽는다. 경고가 없어도 `sheet.png`를 Read로 열어 겹침·빈 화면을 본다.
+4. 노션 피드 토글에 PNG를 장 순서대로 업로드(썸네일과 같은 file-upload 방식). 엔진이 없으면(`run.bat --check`의 카드뉴스 엔진 `-`)
+   "카드 이미지 미생성 — 엔진 설치 필요"라고 적고 문구만 싣는다.
+
 ## 스타일 업데이트 방법
 
 사용자가 "스타일 업데이트", "작성 팁 바뀌었어" 등을 요청하면:
@@ -77,6 +89,6 @@ description: 트렌드 리포트로 블로그·인스타그램 피드·릴스·�
 2. 바뀐 규칙을 해당 references/*.md 에 반영한다. 원천 예시 글을 통째로 옮기지 말고 규칙으로 요약한다.
 3. 원천 팁이 위 "사실 규칙"과 충돌하면(경험·수치 지어내기, 상위 노출 확률 같은 근거 없는 예측) 사실 규칙을 유지하고, 바꾼 점을 사용자에게 알린다.
 4. 같은 규칙을 웹 LLM 요청 프롬프트·API 모드 지침에도 반영한다 — `agent/prompts/` 의
-   system.md(공통 원칙) · blog.md/blog_draft.md(블로그) · reels.md/reels_script.md(릴스) · channels.md(피드+유튜브).
+   system.md(공통 원칙) · blog.md/blog_draft.md(블로그) · reels.md/reels_script.md(릴스) · channels.md(피드+유튜브) · cards.md(카드뉴스 JSON).
    `{{insight}}`, `{{digest}}`, `{{plan}}` 자리표시는 지우지 않는다. 고친 뒤 `run.bat "아무 키워드" --no-images`로 `_요청_*.txt`가 정상 생성되는지 확인.
 5. 바꾼 내용을 사용자에게 요약한다.

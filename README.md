@@ -54,7 +54,7 @@ LLM을 쓰면 블로그 본문 원고와 릴스 대본이 `..._blog_원고.md`, 
 
 원고·대본 단계는 수집 데이터가 헤드라인 위주라 **웹 검색으로 기사 원문을 확인하며** 씁니다(Claude `web_search` / Gemini Google 검색).
 확인하지 못한 기간·요금 같은 세부 정보는 `[확인 필요]`로 남으니 발행 전에 채우세요.
-한 번 실행에 LLM을 약 6번 호출합니다(인사이트 1, 기획서 2, 완성본 2, 이미지 1). 비용을 줄이려면 `--no-draft`, `--no-web`, `--no-images`를 쓰세요.
+한 번 실행에 LLM을 약 7번 호출합니다(인사이트 1, 기획서 2, 완성본 2, 이미지 1, 카드뉴스 1). 비용을 줄이려면 `--no-draft`, `--no-web`, `--no-images`를 쓰세요.
 
 ## 파이프라인
 
@@ -125,9 +125,13 @@ run.bat "가을 캠핑" --make-cards                       :: 리포트 → 카�
 run.bat --cards-from reports\20261009_2148_가을_캠핑.md  :: …_cards.json을 고친 뒤 카드만 다시 굽기
 ```
 
-1. **카드 문구** — 리포트를 만들 때 `…_cards.json`이 자동 저장됩니다(표지 → 상위 이슈 4장 → 확인할 것 → 마무리).
-   수집 데이터는 제목뿐이라 기본본은 제목·출처·날짜만 싣습니다. Claude나 웹 LLM이 쓴 카드 문구로 이 파일을 덮어쓰면 그 문구로 굽습니다.
-   형식은 `agent/cardnews.py` 맨 위 설명(`title`의 `\n` 줄바꿈, `*강조*`, 화면 칸 `rows/list/table/checks/text/image`).
+1. **카드 문구** — 리포트를 만들 때 `…_cards.json`이 자동 저장됩니다. 규칙은 `agent/prompts/cards.md` 한 파일
+   (8장 흐름, 장마다 다른 화면 칸, 근거 표기, `[확인 필요]`)이고 세 경로가 같이 씁니다.
+   - 프롬프트 모드(기본): 수집한 제목·출처·날짜만으로 기본본(표지 → 상위 이슈 4장 → 확인할 것 → 마무리).
+     `_요청_channels.txt`를 웹 LLM에 넣으면 답변 끝에 카드 JSON이 나오고, 그 답변을 파일로 저장해
+     `run.bat --cards-from reports\….md --cards-file 답변.txt`로 굽습니다.
+   - API 모드: LLM이 카드 문구를 바로 씁니다(호출 1번 추가, 실패하면 기본본).
+   - Claude(노션 상세 리포트): 스킬 `trend-content-style`의 "카드뉴스 굽기" 순서로 JSON을 쓰고 굽습니다.
 2. **굽기** — cardnews-kit의 `cardnews-engine` 스킬(`render.cjs`)이 로컬 Chrome으로 PNG를 만들고
    넘침·24px 미만 글자·어색한 줄바꿈을 자동 검사합니다. 경고는 실행 결과에 `!`로 나옵니다.
 3. **결과** — `images\<리포트>\cards\out\NN-이름.png`(납품용), `preview\sheet.png`(모아보기), `preview\phone\`(휴대폰 폭).

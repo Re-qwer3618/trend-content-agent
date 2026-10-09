@@ -10,6 +10,7 @@ LLM이 없거나 실패하면 1단계는 데이터로 채운 골격(템플릿), 
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -32,8 +33,13 @@ class Plan:
     draft_by: str = ""
 
 
+_INCLUDE_RE = re.compile(r"\{\{include:(\w+)\}\}")
+
+
 def _prompt(name: str) -> str:
-    return (PROMPT_DIR / f"{name}.md").read_text(encoding="utf-8")
+    """prompts/<name>.md. 본문의 {{include:파일}} 은 prompts/파일.md 내용으로 바꾼다(공통 규칙을 한 곳에서 관리)."""
+    text = (PROMPT_DIR / f"{name}.md").read_text(encoding="utf-8")
+    return _INCLUDE_RE.sub(lambda m: (PROMPT_DIR / f"{m.group(1)}.md").read_text(encoding="utf-8").strip(), text)
 
 
 def _render(template: str, analysis: Analysis, plan: str = "", with_urls: bool = False) -> str:

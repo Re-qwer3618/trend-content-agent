@@ -121,6 +121,16 @@ run.bat --video-from reports\…md --script 대본.txt --voice male   :: 웹 LLM
 "독자 관점 정하기 → 관점별 질문 → 질문마다 근거 검색 → 개요 → 집필 → 다듬기" 흐름을 넣었습니다.
 API 모드와 웹 LLM용 제작 요청 프롬프트 양쪽에 같이 적용되며, 원고에 **FAQ 3개**와 **참고 자료 목록**이 추가됩니다.
 
+## AI 영상·이미지 생성 프롬프트 규칙
+
+릴스 기획서·촬영 대본의 "생성 프롬프트"와 썸네일 프롬프트는 `agent/prompts/visual_rules.md` 한 파일의 규칙을 따릅니다
+([higgsfield-ai-prompt-skill](https://github.com/OSideMedia/higgsfield-ai-prompt-skill)(MIT)의 MCSLA 공식·카메라 용어·네거티브 지침을 요약·번안).
+
+- 영문 한 문단: 피사체 → 행동 1개 → `Camera:` 이름 붙은 무빙 1개 → 장소·시간 → `Look:` 조명·색감·렌즈
+- 릴스 구간별 카메라 사전(훅 Crash Zoom In, 정보 static·Overhead, 장소 Crane Down …), 막연한 말 금지표, "하지 말 것" 대신 원하는 모습 쓰기
+- Higgsfield·Kling·Seedance·Wan·LTX 등 **어느 생성기에 붙여 넣어도** 쓰이게 썼습니다(이 프로젝트가 유료 생성기를 직접 호출하지는 않음)
+- 프롬프트 파일에서 `{{include:visual_rules}}`로 불러오므로, 규칙은 이 파일만 고치면 API 모드·웹 LLM 요청 프롬프트·스킬에 같이 반영됩니다
+
 ## 이미지 생성 (agent/image_maker.py)
 
 리포트의 이미지 프롬프트(`..._images.json`)로 실제 이미지를 만들어 `images\<리포트이름>\<이슈번호>_<용도>.jpg|png`에 저장하고,

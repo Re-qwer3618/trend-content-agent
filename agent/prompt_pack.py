@@ -34,6 +34,10 @@ def _content_prompt(analysis: Analysis, fmt: str) -> str:
                   .replace("{{plan}}", f"(작업 1에서 작성한 {plan_name})")
                   .replace("{{insight}}", "(위 작업 1의 리서치 인사이트 참고)")
                   .replace("{{digest}}", "(위 작업 1의 데이터와 URL 참고)")).strip()
+    # 공통 규칙(include)이 작업 1에 이미 들어 있으면 작업 2에서는 빼서 한 번만 싣는다
+    rules = _prompt("visual_rules").strip()
+    if rules in plan_part:
+        draft_part = draft_part.replace(rules, "(위 작업 1의 'AI 영상·이미지 생성 프롬프트 규칙' 참고)")
     return _fence_safe("\n\n".join([
         f"# 역할\n{system}",
         f"# 진행 방식\n두 작업을 순서대로 한 답변에 모두 출력해 줘. 웹 검색을 쓸 수 있으면 켜고 원문을 확인해 줘.\n{INSIGHT_NOTE}",
@@ -67,6 +71,9 @@ def _images_prompt(analysis: Analysis, max_issues: int) -> str:
         f"아래 이슈 [0]~[{len(issues) - 1}] 각각에 대해 용도별({usages}) 이미지 생성 프롬프트를 영문으로 하나씩 써 줘.\n"
         "- 한 문단, 구체적인 피사체·장면·구도·조명·색감·스타일. 문구를 얹을 여백(negative space)을 남길 것\n"
         "- 이미지 안에 글자·로고가 생기지 않게 'no text, no logo' 포함. 실존 인물·상표는 일반화해서 표현\n"
+        "- beautiful·stunning·cinematic·4K 같은 막연한 말 대신 조명·렌즈·샷 크기를 이름으로 "
+        "(예: golden-hour backlight, 35mm shallow depth of field, overhead flat lay)\n"
+        "- '피해야 할 행동' 이슈는 올바른 모습을 그린다 (예: 텐트 안 난로 → 텐트 밖 화로 + 환기창 연 텐트)\n"
         f"- 메인 키워드: {main}",
         "# 출력 형식 (표)\n| 이슈 | 용도 | 비율 | 영문 프롬프트 | 네거티브 프롬프트 | 얹을 한글 문구(15자 이내) | 대체텍스트(alt, 메인 키워드 포함) |",
         "# 데이터\n" + digest(analysis, max_issues=len(issues)),

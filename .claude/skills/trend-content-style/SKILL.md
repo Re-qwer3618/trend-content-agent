@@ -57,11 +57,13 @@ description: 트렌드 리포트로 블로그·인스타그램 피드·릴스·�
 `[확인 필요]`가 남아 있으면 판정은 "보완 후 발행".
 
 각 채널 토글 안에는 그 채널용 **이미지·영상 제작 프롬프트** 코드 블록을 둔다(블로그: 대표 썸네일+본문 이미지 2~3, 피드: 카드 배경,
-릴스: 스토리보드 표의 '영상 생성 프롬프트' 열 + 네거티브, 유튜브: 16:9 썸네일 배경 + B-roll 2개). 모두 영문, `no text, no logo`, 실존 인물 없음.
+릴스: 스토리보드 표의 '영상 생성 프롬프트' 열 + 네거티브, 유튜브: 16:9 썸네일 배경 + B-roll 2개). 작성 규칙은
+`agent/prompts/visual_rules.md`(MCSLA 순서·카메라 사전·막연한 말 금지·긍정형 제약)를 따른다. 모두 영문, `no text, no logo`, 실존 인물 없음.
 
 ## 썸네일 만들기
 
 1. 이슈마다 영문 프롬프트 2개(blog_thumbnail 1:1, reels_cover 9:16)를 직접 쓴다 — 구체적 장면·구도·조명·색감, 문구 얹을 여백, `no text, no logo`, 사람 얼굴 없음.
+   `agent/prompts/visual_rules.md`의 '막연한 말 대신 구체적인 말' 표를 지킨다(조명·렌즈·샷 크기를 이름으로). '피해야 할 행동' 이슈는 올바른 모습을 그린다.
 2. `reports/<날짜>_<이름>_images.json`으로 저장한다 — 형식: `{"prompts":[{issue_index, issue_title, usage, aspect_ratio, prompt_en, negative_prompt, style, overlay_text_ko, alt_text_ko}]}`
 3. `run.bat --images-from reports\<날짜>_<이름>_images.json --image-provider pollinations` → `images/<날짜>_<이름>/<n>_<usage>.jpg`.
    실패한 장은 다시 시도(무료 등급 속도 제한), 그래도 실패하면 페이지에 "생성 실패 — 프롬프트로 직접 생성" 표시.

@@ -19,7 +19,9 @@ name: trend-bot
 
 on:
   schedule:
-    - cron: "0 23 * * *"   # UTC 23:00 = 한국시간 08:00 (GitHub 사정으로 수십 분 늦을 수 있음)
+    # UTC 21:07 = 한국시간 06:07. 정각(:00) 예약은 GitHub에서 몰려 2~4시간씩 밀렸다(10/3~9 실측: 08:00 → 10:44~11:50).
+    # 정각을 피하고 두 시간 앞당겨, 밀려도 08시 무렵엔 리포트가 올라오게 한다.
+    - cron: "7 21 * * *"
   workflow_dispatch:
     inputs:
       keywords:

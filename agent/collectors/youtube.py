@@ -66,6 +66,7 @@ class YouTubeCollector(BaseCollector):
                         "likes": int(st.get("likeCount", 0) or 0),
                         "comments": int(st.get("commentCount", 0) or 0),
                         "duration": v.get("contentDetails", {}).get("duration", ""),  # PT45S → 쇼츠 판별용
+                        "category_id": sn.get("categoryId", ""),  # 10 음악, 20 게임 … (오늘의 목록 필터용)
                     },
                 )
             )

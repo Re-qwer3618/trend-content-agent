@@ -224,7 +224,36 @@ def rank_issues(items: list[TrendItem], seed: str | None, top: int = 7) -> list[
             breakdown={k: round(v, 2) for k, v in breakdown.items()},
         ))
     issues.sort(key=lambda x: x.score, reverse=True)
+    if not seed_tokens:  # 오늘의 트렌드 모드: 유튜브 인기 영상이 목록을 독차지하지 않게
+        issues = _balance_today(issues, top)
     return issues[:top]
+
+
+# 유튜브 카테고리 중 블로그·릴스 소재가 되기 어려운 것 (YouTube Data API videoCategories, KR)
+_YT_SKIP_CATEGORIES = {"10": "음악", "20": "게임"}
+YOUTUBE_SHARE = 0.3  # 오늘의 목록에서 유튜브 단독 이슈가 차지할 수 있는 최대 비율
+
+
+def _balance_today(issues: list[Issue], top: int) -> list[Issue]:
+    """키워드 없는 목록: 게임·음악 영상은 빼고, 유튜브만으로 된 이슈는 top의 30%(10개 중 3개)까지만.
+    자리가 남으면(급상승어가 모자라면) 밀려난 유튜브 이슈로 다시 채운다."""
+    def youtube_only(iss: Issue) -> bool:
+        return iss.sources == ["youtube"]
+
+    def skipped(iss: Issue) -> bool:
+        return youtube_only(iss) and all(it.extra.get("category_id") in _YT_SKIP_CATEGORIES for it in iss.items)
+
+    kept = [i for i in issues if not skipped(i)]
+    cap = max(1, int(top * YOUTUBE_SHARE))
+    picked, overflow, yt = [], [], 0
+    for iss in kept:
+        if youtube_only(iss):
+            if yt >= cap:
+                overflow.append(iss)
+                continue
+            yt += 1
+        picked.append(iss)
+    return picked + overflow
 
 
 # ---------------------------------------------------------------- LLM 인사이트

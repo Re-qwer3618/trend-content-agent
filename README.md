@@ -139,7 +139,7 @@ API 모드와 웹 LLM용 제작 요청 프롬프트 양쪽에 같이 적용되�
 
 ## 매일 자동 실행 (GitHub Actions)
 
-`.github/workflows/trend_bot.yml` — 매일 **한국시간 08:00**에 GitHub 서버에서 리포트를 만들어 저장소의 **`reports` 브랜치**에
+`.github/workflows/trend_bot.yml` — 매일 **한국시간 06:07**(GitHub 사정으로 1~3시간 밀릴 수 있어 일찍 잡음)에 GitHub 서버에서 리포트를 만들어 저장소의 **`reports` 브랜치**에
 `reports/`, `images/`로 올립니다. PC가 꺼져 있어도 되고, GitHub 웹·앱에서 바로 읽을 수 있습니다(실행별 Artifact도 30일 보관).
 
 1. 저장소 **Settings → Secrets and variables → Actions**

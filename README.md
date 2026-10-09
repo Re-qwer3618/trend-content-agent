@@ -142,6 +142,14 @@ run.bat --cards-from reports\20261009_2148_가을_캠핑.md  :: …_cards.json�
 이 프로젝트의 `.claude\skills\`에 복사(git 제외 — 키트 코드에 재배포 라이선스가 없음) → `cardnews-engine\scripts`에서 `npm install`(Node 18+, Chrome 또는 Edge 필요).
 다른 위치에 두었다면 `.env`의 `CARDNEWS_ENGINE`. 엔진이 없으면 카드만 건너뛰고 리포트·영상은 그대로 만듭니다(`--check`로 확인).
 
+### 캐릭터 출연 (agent/characters.py)
+
+`agent/prompts/characters.json`의 캐릭터가 카드·릴스에 나옵니다 — 마스코트 꼬북이·토끼양(노션 에셋 모음집의 인형 사진),
+가상 인물 명숙 할머니·세아·도윤(노션 캐릭터 프로필, 아직 이미지 없음 → 말투·목소리·이름 배지로만).
+카드 JSON의 `host`(진행 캐릭터), 장마다 `speaker`+`line`(한마디 말풍선), 화면 칸 `character`(마스코트 리액션 컷 + 말풍선).
+릴스는 장의 `speaker`(없으면 `host`) 목소리로 읽습니다(edge-tts 음성 + 속도·높낮이). 바이럴 포맷 규칙은 `agent/prompts/viral.md`.
+이미지는 git 밖 `assets\characters\` — 새 PC에서는 `characters.json`의 노션 링크에서 원본 png를 받아 넣고 `run.bat --prep-characters`.
+
 ### 카드형 릴스 (agent/card_reel.py)
 
 `--card-reel`을 붙이면 구운 카드를 세로 9:16 한 편(`videos\<리포트>\cards_reel.mp4`, 30초 안팎)으로 이어 붙입니다 — 전부 무료·로컬.
@@ -198,7 +206,9 @@ API 모드와 웹 LLM용 제작 요청 프롬프트 양쪽에 같이 적용되�
 
 ## 이슈 점수 (analyzer.py)
 
-`0.35 × 관련도 + 0.25 × 최신성(반감기 3일) + 0.25 × 인기도(플랫폼 내 log 정규화) + 0.15 × 플랫폼 다양성`
+`0.30 × 관련도 + 0.20 × 최신성(반감기 3일) + 0.20 × 인기도(플랫폼 내 log 정규화) + 0.10 × 플랫폼 다양성 + 0.20 × 바이럴`
+
+바이럴(`_viral`, 0~1)은 퍼질 가능성: 유튜브는 시간당 조회수·좋아요+댓글 비율, 모든 소스는 제목의 훅 단어(반전·꿀팁·비교·TOP·금지·할인 등)·물음표·숫자. 가중치는 `analyzer.SCORE_WEIGHTS`.
 
 제목이 비슷한 뉴스·영상·글은 하나의 이슈로 묶이므로, 여러 플랫폼에서 동시에 뜨는 주제가 위로 올라옵니다.
 LLM이 있으면 이 후보 중에서 콘텐츠화하기 좋은 이슈와 관점, SEO 키워드, 해시태그, 주의사항을 다시 골라 줍니다.

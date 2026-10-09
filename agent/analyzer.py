@@ -79,7 +79,7 @@ class Issue:
     score: float
     sources: list[str]
     items: list[TrendItem]
-    breakdown: dict[str, float]  # relevance / recency / popularity / diversity
+    breakdown: dict[str, float]  # relevance / recency / popularity / diversity / viral
 
 
 @dataclass
@@ -182,6 +182,31 @@ def _popularity(items: list[TrendItem]) -> dict[int, float]:
     return out
 
 
+# 이슈 점수 가중치 — viral(퍼질 가능성)은 2026-10 추가. 합 1.0
+SCORE_WEIGHTS = {"relevance": 0.30, "recency": 0.20, "popularity": 0.20, "diversity": 0.10, "viral": 0.20}
+
+# 제목에 있으면 '퍼질 만한' 이슈로 보는 말 — 반전·손해 회피·비교·랭킹·직접 해 봄·금지/주의·혜택
+_HOOK_WORDS = ("충격", "반전", "실화", "논란", "역대급", "몰랐", "모르면", "꿀팁", "비교", "vs", "top", "순위", "1위",
+               "직접", "해봤", "후기", "절대", "금지", "주의", "피해야", "이유", "방법", "비밀", "무료", "공짜", "할인",
+               "품절", "대란", "난리", "꼭", "필수", "의외")
+
+
+def _viral(item: TrendItem, now: datetime) -> float:
+    """퍼질 가능성(0~1): 유튜브는 시간당 조회수·좋아요+댓글 비율, 모든 소스는 제목의 훅 단어·질문·숫자."""
+    title = item.title.lower()
+    hook = min(sum(w in title for w in _HOOK_WORDS) * 0.3 + ("?" in title) * 0.15
+               + bool(re.search(r"\d", title)) * 0.1, 1.0)
+    if item.source == "youtube" and item.metric:
+        ts = item.published_at or now
+        ts = ts if ts.tzinfo else ts.replace(tzinfo=timezone.utc)
+        hours = max((now - ts).total_seconds() / 3600, 1)
+        velocity = min(math.log10(item.metric / hours + 1) / 5, 1.0)  # 시간당 10만 회 → 1
+        extra = item.extra or {}
+        engage = min((extra.get("likes", 0) + extra.get("comments", 0) * 3) / item.metric / 0.06, 1.0)
+        return round(0.45 * velocity + 0.3 * engage + 0.25 * hook, 3)
+    return round(0.3 + 0.7 * hook, 3)  # 반응 지표가 없는 소스는 제목만으로
+
+
 def _cluster(items: list[TrendItem], threshold: float = 0.3) -> list[list[TrendItem]]:
     """제목 토큰 자카드 유사도로 탐욕적 묶기. 같은 사건을 다룬 뉴스·영상이 한 이슈가 된다."""
     clusters: list[tuple[set[str], list[TrendItem]]] = []
@@ -214,9 +239,9 @@ def rank_issues(items: list[TrendItem], seed: str | None, top: int = 7) -> list[
             "recency": max(_recency(i, now) for i in members),
             "popularity": max(pop[id(i)] for i in members),
             "diversity": min(len(srcs) / 3, 1.0) * min(len(members) / 3, 1.0) ** 0.5,
+            "viral": max(_viral(i, now) for i in members),
         }
-        score = (0.35 * breakdown["relevance"] + 0.25 * breakdown["recency"]
-                 + 0.25 * breakdown["popularity"] + 0.15 * breakdown["diversity"])
+        score = sum(SCORE_WEIGHTS[k] * v for k, v in breakdown.items())
         lead = max(members, key=lambda i: pop[id(i)])
         issues.append(Issue(
             title=lead.title, score=round(score * 100, 1), sources=srcs,

@@ -18,3 +18,21 @@
 .card.cover { --tape: repeating-linear-gradient(-45deg, var(--ink) 0 22px, #ffffff 22px 44px); }
 .card.cover::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 14px; background: var(--tape); }
 .card.cover .bar span[data-token="name"] { color: #ffffff; }
+
+/* ── 캐릭터 (prompts/characters.json) ── */
+/* 리액션 컷: 마스코트 장면 사진이 화면을 꽉 채우고, 말풍선이 왼쪽 위에 */
+.shot .body.scene { padding: 0; position: relative; }
+.shot .body.scene img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 46%; display: block; }
+.shot .bubble { position: absolute; left: 28px; top: 26px; max-width: 72%; padding: 20px 28px 22px; background: #ffffff; color: var(--ink);
+  border: 4px solid var(--ink); border-radius: 28px 28px 28px 6px; font: 800 40px/1.3 "Pretendard"; letter-spacing: -0.03em;
+  box-shadow: 6px 6px 0 var(--accent); }
+.shot .bubble b { color: var(--accent); }
+/* 한마디: 아바타 + 이름 + 대사 (설명 아래, 화면 위) */
+.talk-line { margin-top: 26px; display: flex; align-items: center; gap: 22px; padding: 16px 24px 16px 16px; background: #ffffff;
+  border: 3px solid var(--ink); border-radius: 22px; box-shadow: 5px 5px 0 var(--accent); }
+.talk-line .ava { flex: none; width: 92px; height: 92px; border-radius: 50%; object-fit: cover; border: 3px solid var(--ink); }
+.talk-line .ava.badge { display: grid; place-items: center; background: var(--accent); color: #ffffff; font: 900 44px/1 "Pretendard"; }
+.talk-line p { font: 700 36px/1.35 "Pretendard"; letter-spacing: -0.03em; color: var(--ink); }
+.talk-line p small { display: block; font: 800 26px/1.2 "Pretendard"; color: var(--accent); margin-bottom: 4px; }
+.talk-line p b { color: var(--accent); }
+.card.cover .talk-line { border-color: #ffffff; box-shadow: 5px 5px 0 var(--ink); }

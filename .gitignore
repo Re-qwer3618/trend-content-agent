@@ -16,3 +16,6 @@ __pycache__/
 .claude/skills/cardnews-starter/
 .claude/skills/cardnews-video/
 node_modules/
+
+# character images (user's Notion assets, re-download via links in agent/prompts/characters.json)
+assets/characters/

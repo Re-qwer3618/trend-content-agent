@@ -29,11 +29,12 @@ import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from . import characters
 from .config import PROJECT_DIR
 from .report import SOURCE_LABEL
 
 STYLES = ("series",)  # 지금은 starter의 series 틀만 지원 (나머지 틀은 짜임이 달라 변환기를 따로 만든다)
-SHOT_KINDS = ("rows", "list", "table", "checks", "text", "image")
+SHOT_KINDS = ("rows", "list", "table", "checks", "text", "image", "character")
 CHECK_SVG = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" '
              'stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>')
 
@@ -124,7 +125,9 @@ CARDS_SCHEMA = {
                 "title": {"type": "string", "description": "\\n 줄바꿈, *강조*"},
                 "desc": {"type": "string"},
                 "say": {"type": "string", "description": "카드형 릴스 나레이션 한두 문장 (25자 안팎)"},
-                "shot_kind": {"type": "string", "enum": ["rows", "list", "table", "checks", "text"]},
+                "speaker": {"type": "string", "description": "한마디 할 캐릭터 id (없으면 빈 문자열)"},
+                "line": {"type": "string", "description": "그 캐릭터의 한마디 (20자 안팎)"},
+                "shot_kind": {"type": "string", "enum": ["rows", "list", "table", "checks", "text", "character"]},
                 "shot_label": {"type": "string", "description": "근거(예: 기사 제목 · 언론사 날짜). checks는 빈 문자열"},
                 "shot_dark": {"type": "boolean"},
                 "shot_items": {"type": "array", "items": {
@@ -133,7 +136,7 @@ CARDS_SCHEMA = {
                                    "value": {"type": "string"}},
                     "required": ["key", "value"], "additionalProperties": False}},
             },
-            "required": ["type", "name", "pill", "title", "desc", "say", "shot_kind", "shot_label", "shot_dark", "shot_items"],
+            "required": ["type", "name", "pill", "title", "desc", "say", "speaker", "line", "shot_kind", "shot_label", "shot_dark", "shot_items"],
             "additionalProperties": False}},
         "caption": {"type": "string"},
         "hashtags": {"type": "array", "items": {"type": "string"}},
@@ -150,26 +153,31 @@ def generate_cards(analysis, llm) -> dict:
 
     main = analysis.insight.get("seo_keywords", {}).get("main") or analysis.keyword or ""
     system = _prompt("system") + "\n\n" + _prompt("cards")
+    cast = ", ".join(f"{k}({v['name']})" for k, v in characters.all_characters().items())
     request = (f"아래 리서치로 인스타그램 피드 카드뉴스 문구를 만들어 줘. 메인 키워드: {main}\n"
+               f"출연 가능한 캐릭터 id: {cast}. character 화면은 shot_items 하나에 key=캐릭터 id, value=말풍선.\n"
                "화면 칸은 shot_kind + shot_items로 준다: rows·table은 key/value, list·checks는 value만, "
                "text는 shot_items 하나의 value에 문장.\n\n" + digest(analysis, with_urls=True))
     data = llm.json(system, request, CARDS_SCHEMA)
     cards = []
     for c in data.get("cards", []):
         items, kind = c.get("shot_items") or [], c.get("shot_kind")
-        if kind in ("rows", "table"):
+        if kind == "character":  # items[0]: key=캐릭터 id, value=말풍선
+            value = {"character": items[0]["key"], "bubble": items[0]["value"]} if items else None
+        elif kind in ("rows", "table"):
             value = [[i["key"], i["value"]] for i in items]
         elif kind == "text":
             value = items[0]["value"] if items else ""
         else:
             value = [i["value"] for i in items]
-        shot = {kind: value} if value else {}
+        shot = (value if kind == "character" else {kind: value}) if value else {}
         if shot and c.get("shot_label"):
             shot["label"] = c["shot_label"]
         if shot and c.get("shot_dark"):
             shot["dark"] = True
         cards.append({k: v for k, v in {"type": c.get("type", "page"), "name": c.get("name"), "pill": c.get("pill"),
                                         "title": c.get("title", ""), "desc": c.get("desc"), "say": c.get("say"),
+                                        "speaker": c.get("speaker"), "line": c.get("line"),
                                         "shot": shot}.items() if v})
     if not cards:
         raise CardError("LLM이 카드를 만들지 않았습니다")
@@ -281,6 +289,8 @@ def _card(c: dict, i: int, total: int, set_dir: Path) -> str:
     parts.append(f"  <{tag}>{_inline(c.get('title', ''), 'mark' if kind == 'cover' else 'em')}</{tag}>")
     if c.get("desc"):
         parts.append(f'  <p class="desc">{_inline(c["desc"], "b")}</p>')
+    if c.get("speaker") and c.get("line"):
+        parts.append(_talk_line(c["speaker"], c["line"], set_dir))
     if c.get("shot"):
         parts.append(_shot(c["shot"], set_dir))
     if c.get("dots"):
@@ -314,15 +324,36 @@ def _shot(shot: dict, set_dir: Path) -> str:
             f"<li><i>{CHECK_SVG}</i>{_esc(x)}</li>" for x in v) + "</ul></div>"
     elif kind == "text":
         inner = f'<div class="body"><div class="ask">{_inline(v, "span class=slot")}</div></div>'
+    elif kind == "character":  # 캐릭터 리액션 컷: 마스코트 장면 사진 + 말풍선
+        img = characters.image_path(v, shot.get("mood"))
+        if not img:
+            raise CardError(f"캐릭터 이미지가 없습니다: {v} (assets/characters/, run.bat --prep-characters)")
+        bubble = f'<div class="bubble">{_inline(shot["bubble"], "b")}</div>' if shot.get("bubble") else ""
+        inner = (f'<div class="body fill scene"><img src="{_asset(img, set_dir)}" alt="">{bubble}</div>')
     else:  # image: 세트 폴더 images/로 복사해 화면을 꽉 채운다
         src = Path(v) if Path(v).is_absolute() else PROJECT_DIR / v
         if not src.is_file():
             raise CardError(f"그림 파일이 없습니다: {v}")
-        (set_dir / "images").mkdir(parents=True, exist_ok=True)
-        shutil.copy2(src, set_dir / "images" / src.name)
-        inner = (f'<div class="body fill" style="padding:0"><img src="images/{html.escape(src.name)}" alt="" '
-                 f'style="width:100%;height:100%;object-fit:cover;display:block"></div>')
+        inner = f'<div class="body fill scene"><img src="{_asset(src, set_dir)}" alt=""></div>'
     return f'  <div class="shot{dark}">{chrome}{inner}</div>'
+
+
+def _asset(src: Path, set_dir: Path) -> str:
+    (set_dir / "images").mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src, set_dir / "images" / src.name)
+    return f"images/{html.escape(src.name)}"
+
+
+def _talk_line(cid: str, line: str, set_dir: Path) -> str:
+    """캐릭터 한마디: 아바타(없으면 이름 첫 글자 배지) + 이름 + 대사."""
+    c = characters.get(cid)
+    if not c:
+        raise CardError(f"없는 캐릭터: {cid} (prompts/characters.json)")
+    ava = characters.avatar_path(cid)
+    face = (f'<img class="ava" src="{_asset(ava, set_dir)}" alt="">' if ava
+            else f'<b class="ava badge">{_esc(c.get("badge") or c["name"][0])}</b>')
+    return (f'  <div class="talk-line">{face}<p><small>{_esc(c["name"])}</small>'
+            f'{_inline(line, "b")}</p></div>')
 
 
 def _esc(text) -> str:

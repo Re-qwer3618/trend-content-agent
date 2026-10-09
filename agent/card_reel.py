@@ -15,6 +15,7 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
+from . import characters
 from .cardnews import CardError, check_engine, engine_dir
 from .config import PROJECT_DIR
 from .shorts_maker import VOICES, _speakable, pick_bgm
@@ -63,18 +64,25 @@ def _sentence(text: str) -> str:
     return text if text[-1] in ".!?…" else text + "."
 
 
-def synthesize_lines(lines: list[list[str]], voice_dir: Path, voice: str, rate: str = "+8%") -> list[list[dict]]:
+def card_voices(deck: dict, default: str) -> list[dict]:
+    """장마다 읽을 목소리: 그 장의 speaker 캐릭터 → 덱의 host 캐릭터 → 기본(SHORTS_VOICE)."""
+    base = {"name": default, "rate": "+8%", "pitch": "+0Hz"}
+    host = characters.voice(deck.get("host"))
+    return [{**base, **(characters.voice(c.get("speaker")) or host or {})} for c in deck["cards"]]
+
+
+def synthesize_lines(lines: list[list[str]], voice_dir: Path, voices: list[dict]) -> list[list[dict]]:
     import edge_tts
 
     voice_dir.mkdir(parents=True, exist_ok=True)
     cards = []
-    for i, card_lines in enumerate(lines, start=1):
+    for i, (card_lines, v) in enumerate(zip(lines, voices), start=1):
         entries = []
         for k, text in enumerate(card_lines, start=1):
             path = voice_dir / f"{i:02d}-{k}.mp3"
             for attempt in range(3):
                 try:
-                    edge_tts.Communicate(_speakable(text), voice, rate=rate).save_sync(str(path))
+                    edge_tts.Communicate(_speakable(text), v["name"], rate=v["rate"], pitch=v["pitch"]).save_sync(str(path))
                     if path.stat().st_size > 0:
                         break
                 except Exception as e:  # edge-tts는 네트워크 오류를 여러 종류로 던진다
@@ -105,7 +113,7 @@ def make_card_reel(deck: dict, set_dir: Path, out_dir: Path, voice: str | None =
         shutil.copytree(set_dir, work, ignore=shutil.ignore_patterns("out", "preview", "video"))
         html = (work / "cards.html").read_text(encoding="utf-8")
         (work / "cards.html").write_text(html.replace("</head>", HIDE_SWIPE, 1), encoding="utf-8")
-        narration = synthesize_lines(lines, work / "voice", voice)
+        narration = synthesize_lines(lines, work / "voice", card_voices(deck, voice))
         (work / "narration.json").write_text(json.dumps({"cards": narration}, ensure_ascii=False, indent=1),
                                              encoding="utf-8")
         proc = subprocess.run(["node", str(video_dir() / "video.cjs"), str(work), "--format", "reel"],

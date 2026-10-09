@@ -75,6 +75,8 @@ def parse_args(argv=None):
                    help="--cards-from 과 함께: 웹 LLM 답변(카드 JSON 코드 블록)이나 JSON 파일을 그 리포트의 카드 문구로 저장 후 굽기")
     p.add_argument("--card-reel", action="store_true",
                    help="카드뉴스를 굽고 이어서 카드형 릴스(9:16 mp4, edge-tts 나레이션·자막·BGM)까지 (videos/<리포트>/)")
+    p.add_argument("--prep-characters", action="store_true",
+                   help="assets/characters/의 캐릭터 원본(png)으로 카드용 이미지·원형 아바타 만들기")
     p.add_argument("--voice", choices=["female", "male", "multi"], help="나레이션 음성 (기본 female)")
     p.add_argument("--list", action="store_true",
                    help="기획서 없이 이슈 TOP N(기본 10) 목록만 저장 (reports/..._issues.md/.json)")
@@ -123,6 +125,11 @@ def main(argv=None) -> int:
         os.environ["SHORTS_VOICE"] = args.voice
     if args.images_from:
         return make_images_for(Path(args.images_from), settings, args.image_provider)
+    if args.prep_characters:
+        from agent.characters import ASSET_DIR, prep
+        made = prep()
+        print(f"✔ 캐릭터 이미지 {len(made)}개 생성 ({ASSET_DIR})" + (f": {', '.join(made)}" if made else " — 이미 최신"))
+        return 0
     if args.cards_from:
         rc = make_cards_for(Path(args.cards_from), settings, Path(args.cards_file) if args.cards_file else None)
         return make_card_reel_for(Path(args.cards_from), settings) if rc == 0 and args.card_reel else rc

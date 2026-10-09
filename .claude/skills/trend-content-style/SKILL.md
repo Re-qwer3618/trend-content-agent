@@ -72,6 +72,14 @@ description: 트렌드 리포트로 블로그·인스타그램 피드·릴스·�
 4. 생성된 이미지를 Read로 확인하고, 주제와 어긋나면 그 사실을 callout에 적는다.
 5. 노션 업로드: 파일마다 `notion-create-file-upload` → 받은 `upload_url`에 `curl -X POST -H "authorization: Bearer <token>" -F "file=@<경로>"` → 페이지에 `<image src="file-upload://ID"></image>`.
 
+## 바이럴·캐릭터 (채널 "무모한도전")
+
+피드·릴스를 쓸 때는 `agent/prompts/viral.md`(훅 5유형, 시리즈 장치, 저장·댓글·공유 유도, 금지 사항)를 따른다.
+출연 캐릭터는 `agent/prompts/characters.json` — 주제에 맞는 캐릭터 2~3명을 골라 시리즈처럼 쓴다
+(예: 안전·생활 → 명숙 할머니의 잔소리 + 꼬북이 리액션, 신상·비교 → 세아/도윤 + 토끼양 정리).
+캐릭터 말투는 persona대로, 사실은 기사 근거 그대로 — 캐릭터 대사로 사실을 바꾸거나 부풀리지 않는다.
+가상 인물은 이미지가 없으니 이름 배지로만 나오고, 사실적 AI 인물 이미지를 만들면 'AI 정보' 표시를 안내한다.
+
 ## 카드뉴스 굽기
 
 1. 피드 카드 문구를 `agent/prompts/cards.md` 규칙의 JSON으로 `reports/<리포트>_cards.json`에 쓴다(리포트 실행 때 생긴 기본본을 덮어씀).

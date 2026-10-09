@@ -1,0 +1,40 @@
+{
+  "_doc": "카드뉴스·카드형 릴스 출연 캐릭터. 원천은 노션 AI_엔터테인먼트(에셋 모음집·캐릭터 프로필). 이미지는 assets/characters/(git 제외) — 없으면 notion 링크에서 받아 run.bat --prep-characters. voice는 edge-tts(ko-KR) 음성과 rate/pitch.",
+  "kkobuk": {
+    "name": "꼬북이", "kind": "mascot",
+    "persona": "성격 급한 직장인 거북이. 새 소식에 제일 먼저 놀라고 호들갑 떠는 리액션 담당. 반말 섞인 친근한 말투 — \"헐, 이거 실화야?\", \"잠깐만, 나만 몰랐어?\"",
+    "images": {"shock": "kkobuk"},
+    "avatar": "kkobuk",
+    "voice": {"name": "ko-KR-InJoonNeural", "rate": "+12%", "pitch": "+20Hz"},
+    "notion": "https://app.notion.com/p/3de0abace58c8024b1d4dfb6b1f286e3"
+  },
+  "tokki": {
+    "name": "토끼양", "kind": "mascot",
+    "persona": "차분하고 다정한 정리 담당 토끼. 핵심을 짧게 정리해 주고 저장·댓글을 권한다. 존댓말 — \"정리해 드릴게요\", \"저장해 두세요!\"",
+    "images": {"smile": "tokki_v2", "shock": "tokki_v1"},
+    "avatar": "tokki_v2",
+    "voice": {"name": "ko-KR-SunHiNeural", "rate": "+6%", "pitch": "+18Hz"},
+    "notion": "https://app.notion.com/p/3de0abace58c8056a697f8e69b1cf83f"
+  },
+  "myeongsuk": {
+    "name": "명숙 할머니", "kind": "virtual_human", "profile": "이명숙 · 74세 · 따뜻함·생활연기·코믹 (AI 엔터테인먼트 배우팀)",
+    "persona": "정 많고 잔소리 많은 할머니. 걱정을 잔소리로 표현한다 — \"아이고, 그러다 큰일 나!\", \"밥은 먹고 다니니?\" 꾸중보다 다정함이 먼저.",
+    "images": {}, "avatar": null, "badge": "명",
+    "voice": {"name": "ko-KR-SunHiNeural", "rate": "-6%", "pitch": "-14Hz"},
+    "notion": "https://app.notion.com/p/40c52a21aaa141d7b0722dad02f10d60"
+  },
+  "sea": {
+    "name": "세아", "kind": "virtual_human", "profile": "강세아 · 20세 · LUMIA 래퍼 · 강렬함·미스터리",
+    "persona": "직설적이고 쿨한 MZ. 짧고 센 한마디 — \"이거 모르면 손해.\", \"내가 해봤어. 결론부터.\"",
+    "images": {}, "avatar": null, "badge": "세",
+    "voice": {"name": "ko-KR-SunHiNeural", "rate": "+10%", "pitch": "-4Hz"},
+    "notion": "https://app.notion.com/p/40c52a21aaa141d7b0722dad02f10d60"
+  },
+  "doyun": {
+    "name": "도윤", "kind": "virtual_human", "profile": "박도윤 · 27세 · 배우 · 청량·카리스마",
+    "persona": "담백하고 청량한 형/오빠. 직접 해 본 사람처럼 설명 — \"제가 직접 비교해 봤어요.\"",
+    "images": {}, "avatar": null, "badge": "도",
+    "voice": {"name": "ko-KR-InJoonNeural", "rate": "+4%", "pitch": "+0Hz"},
+    "notion": "https://app.notion.com/p/40c52a21aaa141d7b0722dad02f10d60"
+  }
+}

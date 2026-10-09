@@ -39,7 +39,17 @@ _INCLUDE_RE = re.compile(r"\{\{include:(\w+)\}\}")
 def _prompt(name: str) -> str:
     """prompts/<name>.md. 본문의 {{include:파일}} 은 prompts/파일.md 내용으로 바꾼다(공통 규칙을 한 곳에서 관리)."""
     text = (PROMPT_DIR / f"{name}.md").read_text(encoding="utf-8")
-    return _INCLUDE_RE.sub(lambda m: (PROMPT_DIR / f"{m.group(1)}.md").read_text(encoding="utf-8").strip(), text)
+    text = _INCLUDE_RE.sub(lambda m: (PROMPT_DIR / f"{m.group(1)}.md").read_text(encoding="utf-8").strip(), text)
+    return text.replace("{{cast}}", _cast()) if "{{cast}}" in text else text
+
+
+def _cast() -> str:
+    """출연 캐릭터 명단 (prompts/characters.json) — 카드 규칙·요청 프롬프트에 끼워 넣는다."""
+    from .characters import all_characters
+
+    rows = [f"  - `{k}` {v['name']}{' (이미지 있음)' if v.get('images') else ''}: {v['persona']}"
+            for k, v in all_characters().items()]
+    return "  출연 캐릭터:\n" + "\n".join(rows)
 
 
 def _render(template: str, analysis: Analysis, plan: str = "", with_urls: bool = False) -> str:

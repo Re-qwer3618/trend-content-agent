@@ -123,6 +123,7 @@ CARDS_SCHEMA = {
                 "pill": {"type": "string"},
                 "title": {"type": "string", "description": "\\n 줄바꿈, *강조*"},
                 "desc": {"type": "string"},
+                "say": {"type": "string", "description": "카드형 릴스 나레이션 한두 문장 (25자 안팎)"},
                 "shot_kind": {"type": "string", "enum": ["rows", "list", "table", "checks", "text"]},
                 "shot_label": {"type": "string", "description": "근거(예: 기사 제목 · 언론사 날짜). checks는 빈 문자열"},
                 "shot_dark": {"type": "boolean"},
@@ -132,7 +133,7 @@ CARDS_SCHEMA = {
                                    "value": {"type": "string"}},
                     "required": ["key", "value"], "additionalProperties": False}},
             },
-            "required": ["type", "name", "pill", "title", "desc", "shot_kind", "shot_label", "shot_dark", "shot_items"],
+            "required": ["type", "name", "pill", "title", "desc", "say", "shot_kind", "shot_label", "shot_dark", "shot_items"],
             "additionalProperties": False}},
         "caption": {"type": "string"},
         "hashtags": {"type": "array", "items": {"type": "string"}},
@@ -168,7 +169,8 @@ def generate_cards(analysis, llm) -> dict:
         if shot and c.get("shot_dark"):
             shot["dark"] = True
         cards.append({k: v for k, v in {"type": c.get("type", "page"), "name": c.get("name"), "pill": c.get("pill"),
-                                        "title": c.get("title", ""), "desc": c.get("desc"), "shot": shot}.items() if v})
+                                        "title": c.get("title", ""), "desc": c.get("desc"), "say": c.get("say"),
+                                        "shot": shot}.items() if v})
     if not cards:
         raise CardError("LLM이 카드를 만들지 않았습니다")
     return {"version": 1, "style": "series",

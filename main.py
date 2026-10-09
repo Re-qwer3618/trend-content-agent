@@ -13,6 +13,7 @@
     run.bat "가을 캠핑" --make-cards            리포트 + 카드뉴스 PNG (cardnews-kit 스킬, 무료·로컬)
     run.bat --cards-from reports\…_가을_캠핑.md   고친 카드 문구(…_cards.json)로 카드만 다시 굽기
     run.bat --cards-from reports\…md --cards-file 답변.txt   웹 LLM 답변의 카드 JSON으로 굽기
+    run.bat --cards-from reports\…md --card-reel   카드 굽기 + 카드형 릴스(9:16 mp4, 나레이션·자막)
     run.bat --check                          API 키·수집기 상태 확인
     run.bat --today --list                   이슈 TOP 10 목록만 (기획서 없음)
     run.bat --pick 2 5                       최근 목록의 2·5위를 상세 작성
@@ -27,10 +28,11 @@ import sys
 from pathlib import Path
 
 from agent.analyzer import analyze
+from agent.card_reel import default_bgm, make_card_reel
 from agent.cardnews import (CardError, cards_from_analysis, cards_json_path, check_engine, extract_deck,
                             generate_cards, load_deck, render_deck)
 from agent.collectors import COLLECTORS, collect_all
-from agent.config import load_settings
+from agent.config import PROJECT_DIR, load_settings
 from agent.generator import FORMATS, generate
 from agent.image_maker import ImageError, run_for_report
 from agent.images import generate_image_prompts
@@ -71,6 +73,8 @@ def parse_args(argv=None):
     p.add_argument("--cards-from", metavar="REPORT", help="기존 리포트의 카드 문구(…_cards.json)로 카드만 다시 굽기")
     p.add_argument("--cards-file", metavar="FILE",
                    help="--cards-from 과 함께: 웹 LLM 답변(카드 JSON 코드 블록)이나 JSON 파일을 그 리포트의 카드 문구로 저장 후 굽기")
+    p.add_argument("--card-reel", action="store_true",
+                   help="카드뉴스를 굽고 이어서 카드형 릴스(9:16 mp4, edge-tts 나레이션·자막·BGM)까지 (videos/<리포트>/)")
     p.add_argument("--voice", choices=["female", "male", "multi"], help="나레이션 음성 (기본 female)")
     p.add_argument("--list", action="store_true",
                    help="기획서 없이 이슈 TOP N(기본 10) 목록만 저장 (reports/..._issues.md/.json)")
@@ -120,7 +124,8 @@ def main(argv=None) -> int:
     if args.images_from:
         return make_images_for(Path(args.images_from), settings, args.image_provider)
     if args.cards_from:
-        return make_cards_for(Path(args.cards_from), settings, Path(args.cards_file) if args.cards_file else None)
+        rc = make_cards_for(Path(args.cards_from), settings, Path(args.cards_file) if args.cards_file else None)
+        return make_card_reel_for(Path(args.cards_from), settings) if rc == 0 and args.card_reel else rc
     if args.video_from:
         return make_video_for(Path(args.video_from), settings, Path(args.script) if args.script else None)
     if args.pick:
@@ -245,8 +250,9 @@ def run(args, settings, keyword: str | None) -> int:
         except CardError as e:
             print(f"  ! 카드뉴스 문구 생략: {e}")
 
-    if args.make_cards:
-        make_cards_for(path, settings)  # 카드 실패는 리포트·영상 생성을 막지 않는다
+    if args.make_cards or args.card_reel:  # 카드 실패는 리포트·영상 생성을 막지 않는다
+        if make_cards_for(path, settings) == 0 and args.card_reel:
+            make_card_reel_for(path, settings)
     if (args.make_images or args.make_video) and images:
         rc = make_images_for(path, settings, args.image_provider)
         if rc and not args.make_video:
@@ -311,6 +317,22 @@ def make_cards_for(report: Path, settings, answer: Path | None = None) -> int:
         print(f"  ! {w}")
     if not r.warnings:
         print("  자동 검사 경고 없음 (겹침·여백은 모아보기로 눈으로 확인)")
+    return 0
+
+
+def make_card_reel_for(report: Path, settings) -> int:
+    report = report.resolve()
+    try:
+        deck = load_deck(cards_json_path(report))
+        print(f"▶ 카드형 릴스: {len(deck['cards'])}장 → 나레이션 합성 → 9:16 영상 (몇 분 걸림)")
+        r = make_card_reel(deck, settings.image_dir / report.stem / "cards", PROJECT_DIR / "videos" / report.stem,
+                           bgm=default_bgm())
+    except (CardError, OSError, subprocess.TimeoutExpired) as e:
+        print(f"[카드형 릴스] {e}", file=sys.stderr)
+        return 1
+    print(f"✔ 카드형 릴스: {r.video}  ({r.duration:.1f}초, 나레이션 {r.lines}줄{', BGM ' + r.bgm if r.bgm else ''})")
+    if r.frames:
+        print(f"  장면 모음: {r.frames}")
     return 0
 
 

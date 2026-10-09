@@ -15,7 +15,9 @@ run.bat "러닝화" --sources google_news youtube
 run.bat "러닝화" --no-draft --no-web    :: 기획서만 (빠르고 저렴)
 run.bat "러닝화" --make-images          :: 리포트 + 썸네일·커버 이미지 생성 (images\)
 run.bat --images-from reports\20261002_0019_가을_캠핑.md   :: 기존 리포트로 이미지만
-run.bat --check                         :: 키·수집기·LLM 상태 확인
+run.bat "가을 캠핑" --make-cards        :: 리포트 + 인스타 피드 카드뉴스 PNG (images\<리포트>\cards\)
+run.bat --cards-from reports\…_가을_캠핑.md   :: 고친 카드 문구(…_cards.json)로 카드만 다시 굽기
+run.bat --check                         :: 키·수집기·LLM·카드뉴스 엔진 상태 확인
 run.bat --today --list                  :: 기획서 없이 이슈 TOP 10 목록만 (reports\..._issues.md/.json)
 run.bat --pick 2 5                      :: 최근 목록의 2·5위를 그 이슈 검색어로 다시 수집해 상세 리포트
 ```
@@ -82,6 +84,7 @@ trend-content-agent/
 │  ├─ generator.py          기획서 → 완성본 2단계 생성 + LLM 없을 때 템플릿
 │  ├─ images.py             이미지 생성 프롬프트 (LLM 없으면 템플릿)
 │  ├─ image_maker.py        프롬프트 → 실제 이미지 (OpenAI / Gemini / Pollinations 무료)
+│  ├─ cardnews.py           카드뉴스: 카드 문구 JSON → cards.html → PNG (cardnews-kit 스킬의 렌더러 호출)
 │  ├─ shorts_maker.py       쇼츠 영상: edge-tts 나레이션 + 단어 타이밍 자막 + 스톡 영상/이미지 → mp4
 │  ├─ report.py             마크다운 리포트·원본 JSON 저장
 │  └─ prompts/              system.md, blog.md, reels.md (기획서), blog_draft.md, reels_script.md (완성본)
@@ -114,6 +117,24 @@ run.bat --video-from reports\…md --script 대본.txt --voice male   :: 웹 LLM
 
 - edge-tts는 Microsoft Edge 읽어주기 서비스를 쓰는 비공식 라이브러리라, 너무 자주 호출하면 막힐 수 있습니다.
 - 무료 이미지(Pollinations)는 워터마크·768px 제한이 있어 화질이 거칩니다. Pexels 키(무료)를 넣거나 직접 촬영 영상을 쓰면 좋아집니다.
+
+## 인스타 피드 카드뉴스 (agent/cardnews.py)
+
+```bat
+run.bat "가을 캠핑" --make-cards                       :: 리포트 → 카드 문구 → 1080×1350 PNG
+run.bat --cards-from reports\20261009_2148_가을_캠핑.md  :: …_cards.json을 고친 뒤 카드만 다시 굽기
+```
+
+1. **카드 문구** — 리포트를 만들 때 `…_cards.json`이 자동 저장됩니다(표지 → 상위 이슈 4장 → 확인할 것 → 마무리).
+   수집 데이터는 제목뿐이라 기본본은 제목·출처·날짜만 싣습니다. Claude나 웹 LLM이 쓴 카드 문구로 이 파일을 덮어쓰면 그 문구로 굽습니다.
+   형식은 `agent/cardnews.py` 맨 위 설명(`title`의 `\n` 줄바꿈, `*강조*`, 화면 칸 `rows/list/table/checks/text/image`).
+2. **굽기** — cardnews-kit의 `cardnews-engine` 스킬(`render.cjs`)이 로컬 Chrome으로 PNG를 만들고
+   넘침·24px 미만 글자·어색한 줄바꿈을 자동 검사합니다. 경고는 실행 결과에 `!`로 나옵니다.
+3. **결과** — `images\<리포트>\cards\out\NN-이름.png`(납품용), `preview\sheet.png`(모아보기), `preview\phone\`(휴대폰 폭).
+
+설치(PC마다 한 번): 키트의 `skills\cardnews-engine`, `cardnews-starter`, `cardnews-video`를
+이 프로젝트의 `.claude\skills\`에 복사(git 제외 — 키트 코드에 재배포 라이선스가 없음) → `cardnews-engine\scripts`에서 `npm install`(Node 18+, Chrome 또는 Edge 필요).
+다른 위치에 두었다면 `.env`의 `CARDNEWS_ENGINE`. 엔진이 없으면 카드만 건너뛰고 리포트·영상은 그대로 만듭니다(`--check`로 확인).
 
 ## 블로그 원고 품질 (STORM 방식)
 

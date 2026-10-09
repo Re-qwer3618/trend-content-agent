@@ -10,3 +10,9 @@ assets/bgm/*
 !assets/bgm/README.md
 __pycache__/
 *.pyc
+
+# cardnews-kit (third-party, no license for redistribution; public repo) - install per PC, see README
+.claude/skills/cardnews-engine/
+.claude/skills/cardnews-starter/
+.claude/skills/cardnews-video/
+node_modules/

@@ -313,12 +313,23 @@ def ensure_english(prompts: list[ImagePrompt], settings: Settings, log=print) ->
             r.raise_for_status()
             text = r.json()["choices"][0]["message"]["content"]
         except (requests.RequestException, KeyError, ValueError) as e:
-            log(f"  - 영문 변환 실패 ({type(e).__name__}, {attempt + 1}/3)")
-            time.sleep(15 * (attempt + 1))
+            log(f"  - 무료 텍스트 API 변환 실패 ({type(e).__name__}, {attempt + 1}/3)"
+                + (" — 제목만 번역해 템플릿에 넣기" if attempt == 2 else ""))
+            if attempt < 2:
+                time.sleep(15 * (attempt + 1))
     lines = {int(m.group(1)): m.group(2).strip().strip('"`')
              for m in map(_LINE_RE.match, text.splitlines()) if m}
     fixed = {id(p): replace(p, prompt_en=lines[n]) for n, p in enumerate(todo, start=1)
              if n in lines and not _HANGUL.search(lines[n])}
+    # 마지막 수단: 이슈 제목만 기계 번역해서 템플릿의 한글 자리에 넣는다 (한글 그대로 보내면 무관한 그림이 나옴)
+    for p in todo:
+        if id(p) in fixed:
+            continue
+        title_en = _translate_title(p.issue_title)
+        if title_en:
+            prompt = p.prompt_en.replace(f'"{p.issue_title}" (← 영어로 바꿔 넣기)', f'"{title_en}"')
+            if not _HANGUL.search(prompt):
+                fixed[id(p)] = replace(p, prompt_en=prompt)
     if len(fixed) < len(todo):
         log(f"  - {len(todo) - len(fixed)}개는 영문으로 바꾸지 못해 이번엔 건너뜀 (한글 제목 그대로면 엉뚱한 그림이 나옴) "
             f"— 나중에 --images-from 으로 다시 시도")
@@ -327,6 +338,23 @@ def ensure_english(prompts: list[ImagePrompt], settings: Settings, log=print) ->
 
 def is_untranslated(p: ImagePrompt) -> bool:
     return bool(_HANGUL.search(p.prompt_en))
+
+
+_title_cache: dict[str, str] = {}
+
+
+def _translate_title(title: str) -> str:
+    """MyMemory 무료 번역 API (키 불필요, 익명 하루 5,000자). 실패하면 빈 문자열."""
+    if title not in _title_cache:
+        try:
+            r = requests.get("https://api.mymemory.translated.net/get", timeout=20,
+                             params={"q": title[:400], "langpair": "ko|en"})
+            r.raise_for_status()
+            out = r.json()["responseData"]["translatedText"] or ""
+            _title_cache[title] = "" if _HANGUL.search(out) else out.strip()
+        except (requests.RequestException, KeyError, ValueError, TypeError):
+            _title_cache[title] = ""
+    return _title_cache[title]
 
 
 # ---------------------------------------------------------------- 유틸

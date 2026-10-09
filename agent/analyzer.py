@@ -31,9 +31,13 @@ STOPWORDS = set(
     "가장 정말 진짜 우리 이런 그런 어떤 모든 하나 때문 이후 이전 경우 정도 사실 생각 내용 이상 이하 "
     "올해 내년 작년 오전 오후 기준 발표 예정 가능 확인 제공 맞아 맞이 추진 개최 포착 실시 운영 "
     "좋은 많은 다양한 함께 구독 좋아요 알림 채널 문의 instagram vlog 브이로그 즐기 "
-    "the and for with you this that from "
-    "shorts youtube video official".split()
+    "the and for with you this that from to of on in at by is are be it as or vs ft feat "
+    "shorts youtube video official live "
+    # 유튜브 음원 자동 설명문 ("Provided to YouTube by … Released on … Composer/Lyricist")
+    "provided released auto generated music composer lyricist producer artist arranger "
+    "remastered records entertainment".split()
 )
+_DATE_TOKEN_RE = re.compile(r"^\d+(일|월|년|시|분|초)$")  # '2일' 같은 날짜 조각은 키워드가 아님
 
 
 def _strip_josa(tok: str) -> str:
@@ -52,7 +56,7 @@ def tokenize(text: str) -> list[str]:
     out = []
     for raw in _TOKEN_RE.findall(_URL_RE.sub(" ", text or "")):  # 유튜브 설명의 링크 제거
         tok = _strip_josa(raw)
-        if len(tok) >= 2 and tok not in STOPWORDS:
+        if len(tok) >= 2 and tok not in STOPWORDS and not _DATE_TOKEN_RE.match(tok):
             out.append(tok)
     return out
 
@@ -115,7 +119,7 @@ def extract_keywords(items: list[TrendItem], seed: str | None, top: int = 20) ->
     sources: dict[str, set] = defaultdict(set)
 
     for it in items:
-        if seed and it.source == "google_trends" and not _relevance(it, seed_tokens):
+        if _off_topic_trend(it, seed_tokens):
             continue  # 키워드 모드에서 무관한 전체 급상승어는 연관 키워드 계산에서 제외
         per_item: dict[str, float] = {}
         for tok in tokenize(it.title):
@@ -148,6 +152,12 @@ def _relevance(item: TrendItem, seed_tokens: set[str]) -> float:
         return 1.0
     text_tokens = set(tokenize(f"{item.title} {item.description} {' '.join(item.tags)}"))
     return len(seed_tokens & text_tokens) / len(seed_tokens)
+
+
+def _off_topic_trend(item: TrendItem, seed_tokens: set[str]) -> bool:
+    """키워드 모드에서 구글 실시간 급상승어는 키워드로 검색한 결과가 아니라 '오늘 전체 목록'이라,
+    '가을' 같은 흔한 토큰 하나만 겹쳐도 붙어 들어온다(예: '가을 캠핑'에 '보그'). 키워드 토큰이 전부 있어야 채택."""
+    return bool(seed_tokens) and item.source == "google_trends" and _relevance(item, seed_tokens) < 1.0
 
 
 def _recency(item: TrendItem, now: datetime) -> float:
@@ -323,8 +333,7 @@ def analyze(results: list[CollectResult], keyword: str | None, settings: Setting
     trending = [it for it in items if it.source == "google_trends"]
     seed_tokens = set(tokenize(keyword or ""))
     # 키워드 모드: 키워드와 무관한 전체 급상승어는 이슈 후보에서 빼고 '참고'로만 둔다
-    candidates = [it for it in items
-                  if not (keyword and it.source == "google_trends" and not _relevance(it, seed_tokens))]
+    candidates = [it for it in items if not _off_topic_trend(it, seed_tokens)]
 
     analysis = Analysis(
         keyword=keyword,

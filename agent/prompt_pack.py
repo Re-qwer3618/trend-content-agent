@@ -42,6 +42,15 @@ def _content_prompt(analysis: Analysis, fmt: str) -> str:
     ]))
 
 
+def _channels_prompt(analysis: Analysis) -> str:
+    """인스타 피드(카드뉴스) + 유튜브 — API 생성 포맷은 아니고 웹 LLM 요청 프롬프트로만 만든다."""
+    return _fence_safe("\n\n".join([
+        f"# 역할\n{_prompt('system').strip()}",
+        f"# 진행 방식\n웹 검색을 쓸 수 있으면 켜고 원문을 확인해 줘.\n{INSIGHT_NOTE}",
+        f"# 작업\n\n{_render(_prompt('channels'), analysis, with_urls=True).strip()}",
+    ]))
+
+
 def _fence_safe(text: str) -> str:
     """프롬프트 안의 ``` 를 ~~~ 로 — 리포트·Notion에서 프롬프트 자체를 코드 블록으로 감쌀 때 블록이 깨지지 않게.
     LLM은 ~~~ 도 같은 코드 펜스로 읽는다."""
@@ -72,6 +81,10 @@ def build_request_prompts(analysis: Analysis, formats: list[str], image_issues: 
         out.append(RequestPrompt(
             fmt, f"{FORMATS[fmt]} — {plan_name} + {draft_name}", _content_prompt(analysis, fmt),
             "웹 검색이 되는 ChatGPT(검색 켜기)·Claude.ai·Gemini에 그대로 붙여 넣기. 긴 답변이 끊기면 '계속'이라고 입력"))
+    if formats and analysis.issues:  # 블로그·릴스와 같은 주제로 나머지 채널도
+        out.append(RequestPrompt(
+            "channels", "인스타그램 피드(카드뉴스) + 유튜브", _channels_prompt(analysis),
+            "블로그·릴스 요청과 같은 대화에 이어서 붙여 넣으면 메시지·CTA를 맞추기 쉬움"))
     if include_images and analysis.issues:
         out.append(RequestPrompt(
             "images", "이미지 생성 프롬프트 (영문)", _images_prompt(analysis, image_issues),

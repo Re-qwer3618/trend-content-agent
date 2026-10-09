@@ -1,12 +1,13 @@
 # trend-content-agent
 
-`E:\dev\CLAUDE.md`(워크스페이스 공통 규칙)를 상속합니다. 기능·구조·키 설명은 `README.md`가 기준입니다.
+워크스페이스 공통 규칙 `..\..\CLAUDE.md`(집 PC `E:\dev`, 회사 PC `D:\dev`)를 상속합니다. 기능·구조·키 설명은 `README.md`가 기준입니다.
 
 ## 실행 환경
 
-- Python은 프로젝트 `uv` 가상환경 `.venv`(3.13)를 씁니다. 처음 세팅:
-  `uv venv --python 3.13 .venv` → `uv pip install --python .venv\Scripts\python.exe -r requirements.txt`
-- `run.bat`은 `.venv`를 먼저 찾고, 없으면 conda `agent-py313`으로 내려갑니다. 직접 돌릴 땐 `.venv\Scripts\python.exe main.py ...`.
+- `run.bat`은 프로젝트 `.venv`를 먼저 찾고, 없으면 conda `agent-py313`(3.13)으로 내려갑니다. 직접 돌릴 땐 `run.bat ...`.
+- 회사 PC(`D:\dev`)는 `.venv` 없이 `agent-py313`을 씁니다(워크스페이스 규칙). 패키지는 `requirements.txt` → `_setup\setup-dev-env.bat`.
+- `.venv`를 쓰는 PC라면: `uv venv --python <agent-py313의 python.exe> .venv` → `uv pip install --python .venv\Scripts\python.exe -r requirements.txt`
+  (uv로 파이썬을 따로 받지 않음).
 - 키 없이도 구글 트렌드·구글 뉴스만으로 끝까지 돕니다(`run.bat "키워드"`). 동작 확인은 `run.bat --check`.
 
 ## 규칙

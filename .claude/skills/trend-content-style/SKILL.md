@@ -14,6 +14,7 @@ description: 트렌드 리포트로 블로그·인스타그램 피드·릴스·�
 | 인스타그램 피드(카드뉴스) | [references/instagram-feed.md](references/instagram-feed.md) | 채널별 콘텐츠 통합 템플릿 |
 | 인스타그램 릴스 | [references/reels.md](references/reels.md) | 채널별 콘텐츠 통합 템플릿 |
 | 유튜브 | [references/youtube.md](references/youtube.md) | 채널별 콘텐츠 통합 템플릿 |
+| 피드·릴스 디자인·규격 (공통) | [references/sns-reference.md](references/sns-reference.md) | 디자인 레퍼런스 허브 › SNS/카드뉴스 (스킬 `sns-content-reference`) |
 
 원천 페이지
 - 블로그 SEO 포스트 작성기: https://app.notion.com/p/cfd0abace58c828e85b4816b91aa62e1
@@ -79,6 +80,9 @@ description: 트렌드 리포트로 블로그·인스타그램 피드·릴스·�
 (예: 안전·생활 → 명숙 할머니의 잔소리 + 꼬북이 리액션, 신상·비교 → 세아/도윤 + 토끼양 정리).
 캐릭터 말투는 persona대로, 사실은 기사 근거 그대로 — 캐릭터 대사로 사실을 바꾸거나 부풀리지 않는다.
 가상 인물은 이미지가 없으니 이름 배지로만 나오고, 사실적 AI 인물 이미지를 만들면 'AI 정보' 표시를 안내한다.
+
+카드뉴스·릴스를 만들 땐 `references/sns-reference.md`를 먼저 읽고, 세트를 시작할 때 고른 레퍼런스를 한 줄로 밝힌다
+(예: `레퍼런스: Behance(흐름) + 미리캔버스(국내 톤) + Pinterest(시리즈)`). 다 만든 뒤 그 파일의 규격(안전 영역·글자 크기·강조 한 곳)으로 점검한다.
 
 ## 카드뉴스 굽기
 

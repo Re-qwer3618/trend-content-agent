@@ -93,6 +93,26 @@ def synthesize_lines(lines: list[list[str]], voice_dir: Path, voices: list[dict]
     return cards
 
 
+SAFE_FORMAT = "reelsafe"
+# 인스타 릴스 UI가 덮는 곳(SNS 레퍼런스 허브 플랫폼 규격): 위 250px, 아래 420px(캡션·버튼), 오른쪽 120px(좋아요·댓글).
+# 키트의 reel은 카드를 화면 폭 그대로(1080) 둬서 오른쪽 글자와 자막(카드 아래 끝)이 이 영역에 걸린다
+# → 카드를 0.8배로 줄여 가운데에 두는 형식을 키트 설정에 한 번 추가해 쓴다(키트는 git 밖이라 PC마다 자동으로).
+SAFE_LAYOUT = {"cardScale": 0.8, "cardTop": 300}
+SAFE_SIDE = 130
+
+
+def ensure_safe_format() -> str:
+    cfg_path = video_dir() / "config.json"
+    cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
+    want = {**cfg["formats"]["reel"], **SAFE_LAYOUT}
+    # 아래 진행 줄·장 번호(chrome)도 오른쪽 120px 밖에 오게: 좌우 여백 130px 이상
+    if cfg["formats"].get(SAFE_FORMAT) != want or cfg["chrome"].get("sideMargin", 0) < SAFE_SIDE:
+        cfg["formats"][SAFE_FORMAT] = want
+        cfg["chrome"]["sideMargin"] = max(cfg["chrome"].get("sideMargin", 0), SAFE_SIDE)
+        cfg_path.write_text(json.dumps(cfg, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return SAFE_FORMAT
+
+
 def make_card_reel(deck: dict, set_dir: Path, out_dir: Path, voice: str | None = None,
                    bgm: Path | None = None, timeout: int = 900) -> ReelResult:
     ok, why = check_engine()
@@ -116,12 +136,13 @@ def make_card_reel(deck: dict, set_dir: Path, out_dir: Path, voice: str | None =
         narration = synthesize_lines(lines, work / "voice", card_voices(deck, voice))
         (work / "narration.json").write_text(json.dumps({"cards": narration}, ensure_ascii=False, indent=1),
                                              encoding="utf-8")
-        proc = subprocess.run(["node", str(video_dir() / "video.cjs"), str(work), "--format", "reel"],
+        fmt = ensure_safe_format()
+        proc = subprocess.run(["node", str(video_dir() / "video.cjs"), str(work), "--format", fmt],
                               capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=timeout)
         if proc.returncode != 0:
             msg = (proc.stderr or proc.stdout).strip().splitlines()
             raise CardError("릴스 렌더 실패: " + (msg[-1] if msg else f"종료 코드 {proc.returncode}"))
-        made = work / "video" / "reel.mp4"
+        made = work / "video" / f"{fmt}.mp4"
         if not made.is_file():
             raise CardError("릴스 파일이 만들어지지 않았습니다: " + proc.stdout.strip()[-300:])
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -132,7 +153,7 @@ def make_card_reel(deck: dict, set_dir: Path, out_dir: Path, voice: str | None =
             bgm_name = bgm.name
         else:
             shutil.copy2(made, video)
-        frames_src = work / "video" / "reel-frames.png"
+        frames_src = work / "video" / f"{fmt}-frames.png"
         frames = out_dir / "cards_reel-frames.png"
         if frames_src.is_file():
             shutil.copy2(frames_src, frames)

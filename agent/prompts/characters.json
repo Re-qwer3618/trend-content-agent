@@ -1,40 +1,163 @@
 {
-  "_doc": "카드뉴스·카드형 릴스 출연 캐릭터. 원천은 노션 AI_엔터테인먼트(에셋 모음집·캐릭터 프로필). 이미지는 assets/characters/(git 제외) — 없으면 notion 링크에서 받아 run.bat --prep-characters. voice는 edge-tts(ko-KR) 음성과 rate/pitch.",
+  "_doc": "카드뉴스·카드형 릴스 출연 캐릭터. topics는 어울리는 주제 — 주제에 맞는 캐릭터가 없으면 gen(영문 프롬프트·표정별 문구·seed)을 적어 run.bat --make-character <id>로 이미지를 만든다(Pollinations 무료, 같은 seed로 표정만 바꿔 같은 얼굴 유지). 이미지는 assets/characters/(git 제외). voice는 edge-tts(ko-KR) 음성과 rate/pitch. gen.prompt는 {mood} 자리가 있는 짧은 문장(무료 모델은 앞쪽 70단어 안팎만 읽음).",
   "kkobuk": {
-    "name": "꼬북이", "kind": "mascot",
+    "name": "꼬북이",
+    "kind": "mascot",
     "persona": "성격 급한 직장인 거북이. 새 소식에 제일 먼저 놀라고 호들갑 떠는 리액션 담당. 반말 섞인 친근한 말투 — \"헐, 이거 실화야?\", \"잠깐만, 나만 몰랐어?\"",
-    "images": {"shock": "kkobuk"},
+    "images": {
+      "shock": "kkobuk"
+    },
     "avatar": "kkobuk",
-    "voice": {"name": "ko-KR-InJoonNeural", "rate": "+12%", "pitch": "+20Hz"},
-    "notion": "https://app.notion.com/p/3de0abace58c8024b1d4dfb6b1f286e3"
+    "voice": {
+      "name": "ko-KR-InJoonNeural",
+      "rate": "+12%",
+      "pitch": "+20Hz"
+    },
+    "notion": "https://app.notion.com/p/3de0abace58c8024b1d4dfb6b1f286e3",
+    "topics": [
+      "직장·생활",
+      "돈·절약",
+      "일상 꿀팁"
+    ]
   },
   "tokki": {
-    "name": "토끼양", "kind": "mascot",
+    "name": "토끼양",
+    "kind": "mascot",
     "persona": "차분하고 다정한 정리 담당 토끼. 핵심을 짧게 정리해 주고 저장·댓글을 권한다. 존댓말 — \"정리해 드릴게요\", \"저장해 두세요!\"",
-    "images": {"smile": "tokki_v2", "shock": "tokki_v1"},
+    "images": {
+      "smile": "tokki_v2",
+      "shock": "tokki_v1"
+    },
     "avatar": "tokki_v2",
-    "voice": {"name": "ko-KR-SunHiNeural", "rate": "+6%", "pitch": "+18Hz"},
-    "notion": "https://app.notion.com/p/3de0abace58c8056a697f8e69b1cf83f"
+    "voice": {
+      "name": "ko-KR-SunHiNeural",
+      "rate": "+6%",
+      "pitch": "+18Hz"
+    },
+    "notion": "https://app.notion.com/p/3de0abace58c8056a697f8e69b1cf83f",
+    "topics": [
+      "직장·생활",
+      "정리·요약",
+      "뷰티·라이프"
+    ]
   },
   "myeongsuk": {
-    "name": "명숙 할머니", "kind": "virtual_human", "profile": "이명숙 · 74세 · 따뜻함·생활연기·코믹 (AI 엔터테인먼트 배우팀)",
+    "name": "명숙 할머니",
+    "kind": "virtual_human",
+    "profile": "이명숙 · 74세 · 따뜻함·생활연기·코믹 (AI 엔터테인먼트 배우팀)",
     "persona": "정 많고 잔소리 많은 할머니. 걱정을 잔소리로 표현한다 — \"아이고, 그러다 큰일 나!\", \"밥은 먹고 다니니?\" 꾸중보다 다정함이 먼저.",
-    "images": {}, "avatar": null, "badge": "명",
-    "voice": {"name": "ko-KR-SunHiNeural", "rate": "-6%", "pitch": "-14Hz"},
-    "notion": "https://app.notion.com/p/40c52a21aaa141d7b0722dad02f10d60"
+    "images": {},
+    "avatar": null,
+    "badge": "명",
+    "voice": {
+      "name": "ko-KR-SunHiNeural",
+      "rate": "-6%",
+      "pitch": "-14Hz"
+    },
+    "notion": "https://app.notion.com/p/40c52a21aaa141d7b0722dad02f10d60",
+    "topics": [
+      "안전·건강 생활",
+      "가족",
+      "음식",
+      "캠핑·여행"
+    ]
   },
   "sea": {
-    "name": "세아", "kind": "virtual_human", "profile": "강세아 · 20세 · LUMIA 래퍼 · 강렬함·미스터리",
+    "name": "세아",
+    "kind": "virtual_human",
+    "profile": "강세아 · 20세 · LUMIA 래퍼 · 강렬함·미스터리",
     "persona": "직설적이고 쿨한 MZ. 짧고 센 한마디 — \"이거 모르면 손해.\", \"내가 해봤어. 결론부터.\"",
-    "images": {}, "avatar": null, "badge": "세",
-    "voice": {"name": "ko-KR-SunHiNeural", "rate": "+10%", "pitch": "-4Hz"},
-    "notion": "https://app.notion.com/p/40c52a21aaa141d7b0722dad02f10d60"
+    "images": {},
+    "avatar": null,
+    "badge": "세",
+    "voice": {
+      "name": "ko-KR-SunHiNeural",
+      "rate": "+10%",
+      "pitch": "-4Hz"
+    },
+    "notion": "https://app.notion.com/p/40c52a21aaa141d7b0722dad02f10d60",
+    "topics": [
+      "트렌드",
+      "신상·비교",
+      "엔터"
+    ]
   },
   "doyun": {
-    "name": "도윤", "kind": "virtual_human", "profile": "박도윤 · 27세 · 배우 · 청량·카리스마",
+    "name": "도윤",
+    "kind": "virtual_human",
+    "profile": "박도윤 · 27세 · 배우 · 청량·카리스마",
     "persona": "담백하고 청량한 형/오빠. 직접 해 본 사람처럼 설명 — \"제가 직접 비교해 봤어요.\"",
-    "images": {}, "avatar": null, "badge": "도",
-    "voice": {"name": "ko-KR-InJoonNeural", "rate": "+4%", "pitch": "+0Hz"},
-    "notion": "https://app.notion.com/p/40c52a21aaa141d7b0722dad02f10d60"
+    "images": {},
+    "avatar": null,
+    "badge": "도",
+    "voice": {
+      "name": "ko-KR-InJoonNeural",
+      "rate": "+4%",
+      "pitch": "+0Hz"
+    },
+    "notion": "https://app.notion.com/p/40c52a21aaa141d7b0722dad02f10d60",
+    "topics": [
+      "직접 해 봄·리뷰",
+      "스포츠",
+      "여행"
+    ]
+  },
+  "fan": {
+    "name": "직관이",
+    "kind": "mascot",
+    "topics": [
+      "야구",
+      "스포츠",
+      "경기 결과"
+    ],
+    "persona": "어느 팀 편도 안 드는 열혈 야구팬. 경기 상황에 제일 크게 놀라고 소리치는 리액션 담당. 반말 — \"와, 이걸 지네?!\", \"끝까지 몰라!\"",
+    "images": {
+      "shock": "fan_shock",
+      "smile": "fan_smile"
+    },
+    "avatar": "fan_shock",
+    "voice": {
+      "name": "ko-KR-InJoonNeural",
+      "rate": "+14%",
+      "pitch": "+12Hz"
+    },
+    "gen": {
+      "seed": 31415,
+      "prompt": "{mood}, needle-felted wool doll of a chubby baseball fan in a yellow knit beanie and grey hoodie, in tiny ballpark stands at night, green field behind, tilt-shift macro photo",
+      "moods": {
+        "shock": "screaming in shock with mouth wide open and eyes huge",
+        "smile": "laughing out loud with a huge open smile"
+      }
+    },
+    "notion": null
+  },
+  "caster": {
+    "name": "캐스터",
+    "kind": "mascot",
+    "topics": [
+      "야구",
+      "스포츠",
+      "정리·요약"
+    ],
+    "persona": "차분하고 정확한 중계 캐스터. 숫자와 경우의 수를 깔끔하게 정리하고 마지막에 참여를 권한다. 존댓말 — \"정리해 드리겠습니다\", \"여러분의 예측은요?\"",
+    "images": {
+      "smile": "caster_smile",
+      "shock": "caster_shock"
+    },
+    "avatar": "caster_smile",
+    "voice": {
+      "name": "ko-KR-SunHiNeural",
+      "rate": "+4%",
+      "pitch": "+6Hz"
+    },
+    "gen": {
+      "seed": 27182,
+      "prompt": "{mood}, needle-felted wool doll of a sports caster with black hair, round glasses, grey suit and headset microphone, at a tiny broadcast desk above a miniature baseball field at night, tilt-shift macro photo",
+      "moods": {
+        "smile": "smiling warmly with one hand raised",
+        "shock": "gasping in surprise with mouth open"
+      }
+    },
+    "notion": null
   }
 }

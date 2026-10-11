@@ -77,6 +77,9 @@ def parse_args(argv=None):
                    help="카드뉴스를 굽고 이어서 카드형 릴스(9:16 mp4, edge-tts 나레이션·자막·BGM)까지 (videos/<리포트>/)")
     p.add_argument("--prep-characters", action="store_true",
                    help="assets/characters/의 캐릭터 원본(png)으로 카드용 이미지·원형 아바타 만들기")
+    p.add_argument("--make-character", nargs="+", metavar="ID",
+                   help="characters.json의 gen으로 캐릭터 표정 이미지 만들기 (Pollinations 무료). --force와 함께면 다시 만듦")
+    p.add_argument("--force", action="store_true", help="--make-character: 이미 있는 이미지도 다시 만들기")
     p.add_argument("--voice", choices=["female", "male", "multi"], help="나레이션 음성 (기본 female)")
     p.add_argument("--list", action="store_true",
                    help="기획서 없이 이슈 TOP N(기본 10) 목록만 저장 (reports/..._issues.md/.json)")
@@ -125,6 +128,12 @@ def main(argv=None) -> int:
         os.environ["SHORTS_VOICE"] = args.voice
     if args.images_from:
         return make_images_for(Path(args.images_from), settings, args.image_provider)
+    if args.make_character:
+        from agent.characters import make
+        for cid in args.make_character:
+            print(f"▶ 캐릭터 이미지: {cid}")
+            print(f"✔ {', '.join(make(cid, force=args.force)) or '이미 있음 (--force로 다시)'}")
+        return 0
     if args.prep_characters:
         from agent.characters import ASSET_DIR, prep
         made = prep()

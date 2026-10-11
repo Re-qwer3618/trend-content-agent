@@ -1,0 +1,48 @@
+# 역할
+너는 SNS 콘텐츠용 이미지 디렉터다.
+
+# 작업
+아래 이슈 [0]~[2] 각각에 대해 용도별(blog_thumbnail(네이버 블로그 썸네일, 1:1), reels_cover(인스타 릴스 커버, 9:16)) 이미지 생성 프롬프트를 영문으로 하나씩 써 줘.
+- 한 문단, 구체적인 피사체·장면·구도·조명·색감·스타일. 문구를 얹을 여백(negative space)을 남길 것
+- 이미지 안에 글자·로고가 생기지 않게 'no text, no logo' 포함. 실존 인물·상표는 일반화해서 표현
+- beautiful·stunning·cinematic·4K 같은 막연한 말 대신 조명·렌즈·샷 크기를 이름으로 (예: golden-hour backlight, 35mm shallow depth of field, overhead flat lay)
+- '피해야 할 행동' 이슈는 올바른 모습을 그린다 (예: 텐트 안 난로 → 텐트 밖 화로 + 환기창 연 텐트)
+- 메인 키워드: 김사랑
+
+# 출력 형식 (표)
+| 이슈 | 용도 | 비율 | 영문 프롬프트 | 네거티브 프롬프트 | 얹을 한글 문구(15자 이내) | 대체텍스트(alt, 메인 키워드 포함) |
+
+# 데이터
+# 입력 키워드: (없음 - 오늘의 트렌드 모드)
+
+## 핵심 이슈 후보
+[0] 김사랑  (점수 77.6, 플랫폼 google_trends)
+    - (google_trends) 김사랑 | 검색량 1000+ | 2026-10-10
+[1] fc barcelona vs getafe cf standings  (점수 77.2, 플랫폼 google_trends)
+    - (google_trends) fc barcelona vs getafe cf standings | 검색량 200+ | 2026-10-10
+      Barcelona 3-0 Getafe: Anthony Gordon scores first Barca goal as Catalan club equal best start to La Liga season / Liga: Barça, the big 8 / FC Augsburg vs Bayern
+[2] real madrid vs villarreal cf standings  (점수 77.1, 플랫폼 google_trends)
+    - (google_trends) real madrid vs villarreal cf standings | 검색량 200+ | 2026-10-10
+      Real Madrid 1-0 Villarreal: Vinicius Jr sent off for hair pull in win / Diomande: "I’m happy for my first goal and for the victory" / Liga: Mbappé sterile, Real
+
+## 연관 키워드 (점수 / 등장 플랫폼 / 네이버 검색량 최근7일 증감)
+- standings: 4.0 / google_trends
+- mls: 3.0 / google_trends
+- fc: 3.0 / google_trends
+- off: 2.0 / google_trends
+- first: 2.0 / google_trends
+- goal: 2.0 / google_trends
+- liga: 2.0 / google_trends
+- season: 2.0 / google_trends
+
+## 구글 실시간 급상승 검색어 (전체 화제, 참고)
+- 월스트리트 저널 (검색량 100+)
+- 원자력 (검색량 100+)
+- 사관학교 (검색량 200+)
+- mls (검색량 100+)
+- fc barcelona vs getafe cf standings (검색량 200+)
+- hd현대 (검색량 100+)
+- 김사랑 (검색량 1000+)
+- lafc (검색량 100+)
+- real madrid vs villarreal cf standings (검색량 200+)
+- 박유나 (검색량 100+)

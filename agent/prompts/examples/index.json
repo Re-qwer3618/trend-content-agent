@@ -281,5 +281,28 @@
   "metrics": {},
   "notion": "https://app.notion.com/p/3f70abace58c81e5ba69f48ac6898a3f",
   "file": "아직도_달걀을_문_칸에_냉장고_보관_3가지_생활_꿀팁_1.json"
+ },
+ {
+  "title": "나만 빼고 다 쓰는 AI, 한 장 정리 (AI·IT #1)",
+  "status": "후보",
+  "source": "우리 콘텐츠",
+  "category": "AI·IT",
+  "account": "",
+  "formats": [
+   "카드뉴스",
+   "카드형 릴스"
+  ],
+  "topics": [
+   "트렌드"
+  ],
+  "hook": "숫자·랭킹",
+  "why": "게시 전 — 카테고리 패턴(AI·IT '한 장 정리') 첫 적용. 볼 점: 소외감 훅('나만 빼고'), 목적→툴 표 한 장(저장용), 좋아요·저장·공유 3단 + '뭐 써요?' 댓글로 다음 편 예고. 가격·무료 한도는 자주 바뀌어 싣지 않음.",
+  "characters": [
+   "doyun",
+   "tokki"
+  ],
+  "metrics": {},
+  "notion": "https://app.notion.com/p/3f70abace58c81c3b1b6e1c756e35676",
+  "file": "나만_빼고_다_쓰는_AI_한_장_정리_AI_IT_1.json"
  }
 ]

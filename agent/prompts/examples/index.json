@@ -92,5 +92,159 @@
   "metrics": {},
   "notion": "https://app.notion.com/p/3f70abace58c8145aa02d91f29b25318",
   "file": "오늘_밤_4개가_갈린다_정규시즌_최종전_짧은_형식_1.json"
+ },
+ {
+  "title": "패턴 · 야구·스포츠",
+  "status": "채택",
+  "source": "외부 사례",
+  "account": "@dao.ino @apex_artmagazine @sonminsu_codi @kkabuktoon_baseball @kbo.official (검색 상위, 2026-10-12)",
+  "formats": [
+   "카드뉴스",
+   "카드형 릴스"
+  ],
+  "topics": [
+   "야구",
+   "스포츠"
+  ],
+  "hook": "반전·의외",
+  "why": "8~9초 장면 릴스 200~480만 회, 순위 TOP5 151만, 캐릭터 낙서 만화 1장 3일 2만 좋아요, 공식 순위표 1일 1.7만.",
+  "characters": [
+   "caster",
+   "fan"
+  ],
+  "metrics": {},
+  "notion": "https://app.notion.com/p/3f70abace58c812692f0da8096a895ef",
+  "file": "패턴_야구_스포츠.md"
+ },
+ {
+  "title": "패턴 · 건강·안전",
+  "status": "채택",
+  "source": "외부 사례",
+  "account": "@kimcoach_kr @health__happyvirus @wellness.notes_ (검색 상위, 2026-10-12)",
+  "formats": [
+   "카드뉴스",
+   "카드형 릴스"
+  ],
+  "topics": [
+   "안전·건강 생활"
+  ],
+  "hook": "손해 회피",
+  "why": "결과 먼저 '5개월 -14kg' 14초 198만 회, '한국인 95%가 놓치는' 11초 142만, 번호 목록 한 장 2.4천.",
+  "characters": [
+   "myeongsuk"
+  ],
+  "metrics": {},
+  "notion": "https://app.notion.com/p/3f70abace58c812b9d5bc74741f6f0b2",
+  "file": "패턴_건강_안전.md"
+ },
+ {
+  "title": "패턴 · 캠핑·여행",
+  "status": "채택",
+  "source": "외부 사례",
+  "account": "@byeonnoodle @_sohee.e @young2_camping @_roundmag (검색 상위, 2026-10-12)",
+  "formats": [
+   "카드뉴스",
+   "카드형 릴스"
+  ],
+  "topics": [
+   "캠핑·여행"
+  ],
+  "hook": "숫자·랭킹",
+  "why": "8~11초 감성 릴스 192만·748만 회(코스·지도 미끼, 친구 공유), 매거진형 이색 여행지 6곳 7장.",
+  "characters": [
+   "myeongsuk",
+   "kkobuk"
+  ],
+  "metrics": {},
+  "notion": "https://app.notion.com/p/3f70abace58c813e9ef4c3089e8561e8",
+  "file": "패턴_캠핑_여행.md"
+ },
+ {
+  "title": "패턴 · 음식·신상",
+  "status": "채택",
+  "source": "외부 사례",
+  "account": "@i_doolping.cook @ming_foodie_ @dambit_daily @true_eating (검색 상위, 2026-10-12)",
+  "formats": [
+   "카드뉴스",
+   "카드형 릴스"
+  ],
+  "topics": [
+   "생활 정보"
+  ],
+  "hook": "참견·질문",
+  "why": "신상 하나 + 양자택일 9초 494만 회, '계란만 있을 때' 24초 628만, 주간 신상 리스트 캐러셀.",
+  "characters": [
+   "sea",
+   "kkobuk"
+  ],
+  "metrics": {},
+  "notion": "https://app.notion.com/p/3f70abace58c81468afed68685b27d2b",
+  "file": "패턴_음식_신상.md"
+ },
+ {
+  "title": "패턴 · 돈·절약",
+  "status": "채택",
+  "source": "외부 사례",
+  "account": "@na_rongrong_ @thank_geuri @zister.on @malta_note (검색 상위, 2026-10-12)",
+  "formats": [
+   "카드뉴스",
+   "카드형 릴스"
+  ],
+  "topics": [
+   "생활 정보"
+  ],
+  "hook": "손해 회피",
+  "why": "5초 한 화면 순서표 142만 회, '2030 무조건' 400만, 결과 먼저 '1억' 17일 126만.",
+  "characters": [
+   "sea",
+   "tokki"
+  ],
+  "metrics": {},
+  "notion": "https://app.notion.com/p/3f70abace58c816cb406f67ccdbf7da9",
+  "file": "패턴_돈_절약.md"
+ },
+ {
+  "title": "패턴 · 생활 꿀팁",
+  "status": "채택",
+  "source": "외부 사례",
+  "account": "@purebeef8 @tti.home @health_fact_bot @time.buja_life (검색 상위, 2026-10-12)",
+  "formats": [
+   "카드뉴스",
+   "카드형 릴스"
+  ],
+  "topics": [
+   "생활 정보"
+  ],
+  "hook": "손해 회피",
+  "why": "6초 요령 하나 988만·541만 회, 번호 목록 32~62초 527만·610만 회.",
+  "characters": [
+   "kkobuk",
+   "tokki"
+  ],
+  "metrics": {},
+  "notion": "https://app.notion.com/p/3f70abace58c81aab4e9e738ec9dc0e6",
+  "file": "패턴_생활_꿀팁.md"
+ },
+ {
+  "title": "패턴 · AI·IT",
+  "status": "채택",
+  "source": "외부 사례",
+  "account": "@grappt_ @use.ai.likejimin @onji.lab (검색 상위, 2026-10-12)",
+  "formats": [
+   "카드뉴스",
+   "카드형 릴스"
+  ],
+  "topics": [
+   "트렌드"
+  ],
+  "hook": "숫자·랭킹",
+  "why": "'나만 빼고 다 쓰는 5개' 31초 257만 회, 목적→툴 캐러셀 6장 좋아요 9천, 한 장 총정리 2장 3.9천.",
+  "characters": [
+   "doyun",
+   "tokki"
+  ],
+  "metrics": {},
+  "notion": "https://app.notion.com/p/3f70abace58c81fb9650c6d49a3a5603",
+  "file": "패턴_AI_IT.md"
  }
 ]

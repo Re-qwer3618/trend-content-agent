@@ -84,11 +84,12 @@ def _examples() -> str:
             "**사실·수치·고유명사·문구는 가져오지 않는다** — 이번 주제의 근거로만 쓴다.\n" + "\n".join(parts))
 
 
-MAX_REFS = 3
+MAX_REFS = 12
+REF_LINES = 5  # 사례마다 앞 5줄(카테고리·근거 / 릴스 / 카드 / 훅 / 주의)만 — 카테고리별 패턴을 다 싣고 주제에 맞는 걸 고르게 한다
 
 
 def _refs() -> str:
-    """외부 사례(다른 계정)의 구조 요약 — 채택만, 최근 MAX_REFS개. 카드(cards.md)와 릴스(reels.md) 지침에 들어간다."""
+    """외부 사례(다른 계정)의 구조 요약 — 채택만, 최근 MAX_REFS개, 사례마다 REF_LINES줄. 카드(cards.md)와 릴스(reels.md) 지침에 들어간다."""
     index_file = PROMPT_DIR / "examples" / "index.json"
     if not index_file.exists():
         return ""
@@ -98,10 +99,11 @@ def _refs() -> str:
         f = PROMPT_DIR / "examples" / x["file"]
         if f.exists():
             parts.append(f"  ▸ {x['title']} (훅 {x.get('hook') or '-'} · {', '.join(x.get('formats', []))})\n"
-                         + "\n".join("    " + line for line in f.read_text(encoding="utf-8").strip().splitlines()))
+                         + "\n".join("    " + line for line in f.read_text(encoding="utf-8").strip().splitlines()[:REF_LINES]))
     if not parts:
         return ""
-    return ("- 참고 사례(다른 계정, 노션 콘텐츠 예시 DB의 외부 사례): **구조만** 본받는다 — 장 수·배치·강조 방식·마무리 장치. "
+    return ("- 참고 사례(다른 계정, 노션 콘텐츠 예시 DB의 외부 사례): 이번 주제와 **같은 카테고리**의 패턴을 골라 **구조만** 본받는다 — "
+            "장 수·길이·배치·강조 방식·마무리 장치. "
             "그 계정의 문구·사진·로고·캐릭터는 쓰지 않고, 우리 캐릭터와 채널 키트 디자인으로 바꾼다.\n" + "\n".join(parts))
 
 

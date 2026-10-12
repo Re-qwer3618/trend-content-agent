@@ -33,7 +33,10 @@ from agent.cardnews import (CardError, cards_from_analysis, cards_json_path, che
                             generate_cards, load_deck, render_deck)
 from agent.collectors import COLLECTORS, collect_all
 from agent.config import PROJECT_DIR, load_settings
-from agent.generator import FORMATS, generate
+from agent.categories import all_categories
+from agent.categories import detect as detect_category
+from agent.categories import get as get_category
+from agent.generator import FORMATS, generate, set_category
 from agent.image_maker import ImageError, run_for_report
 from agent.images import generate_image_prompts
 from agent.issue_list import load_issue_list, save_issue_list
@@ -75,6 +78,8 @@ def parse_args(argv=None):
                    help="--cards-from 과 함께: 웹 LLM 답변(카드 JSON 코드 블록)이나 JSON 파일을 그 리포트의 카드 문구로 저장 후 굽기")
     p.add_argument("--short", action="store_true",
                    help="짧은 카드뉴스(2~3장, 하루·한 주 정리) — API 모드 카드 문구와 요청 프롬프트(_요청_cards_short.txt)에 적용")
+    p.add_argument("--category", choices=list(all_categories()),
+                   help="카테고리(prompts/categories.json) — 그 카테고리의 패턴·본보기·캐릭터·형식·나레이션 톤. 없으면 키워드로 추정")
     p.add_argument("--card-reel", action="store_true",
                    help="카드뉴스를 굽고 이어서 카드형 릴스(9:16 mp4, edge-tts 나레이션·자막·BGM)까지 (videos/<리포트>/)")
     p.add_argument("--prep-characters", action="store_true",
@@ -227,6 +232,15 @@ def run(args, settings, keyword: str | None) -> int:
         print(f"  [{i}] {iss.score:5.1f}  {iss.title[:60]}")
     print(f"  연관 키워드: {', '.join(k.word for k in analysis.keywords[:10])}")
 
+    # 카테고리(prompts/categories.json): 지정이 없으면 키워드로 추정 — 그 카테고리의 패턴·본보기·캐릭터·형식·나레이션 톤을 쓴다
+    cid = args.category or (detect_category(keyword) if keyword else None)
+    set_category(cid)
+    category = get_category(cid) or {}
+    short = args.short or category.get("format") == "short"
+    if category:
+        print(f"  카테고리: {category['name']} (진행 {category['host']} · 리액션 {category['reaction']} · "
+              f"{'짧은 형식' if short else '기본 형식'}){'' if args.category else ' — 키워드로 추정, 바꾸려면 --category'}")
+
     plans = []
     for fmt in args.formats:
         print(f"▶ 생성: {FORMATS[fmt]}")
@@ -245,7 +259,7 @@ def run(args, settings, keyword: str | None) -> int:
         if todo or need_images:
             print("▶ 생성: LLM 제작 요청 프롬프트")
             requests = build_request_prompts(analysis, todo, args.image_issues, include_images=need_images,
-                                             short_cards=args.short)
+                                             short_cards=short)
 
     for note in analysis.notes:
         print(f"  ! {note}")
@@ -275,11 +289,13 @@ def run(args, settings, keyword: str | None) -> int:
         if llm:
             print("▶ 생성: 카드뉴스 문구")
             try:
-                deck = generate_cards(analysis, llm, short=args.short)
+                deck = generate_cards(analysis, llm, short=short)
             except (LLMError, CardError, KeyError, ValueError) as e:
                 print(f"  ! 카드뉴스 문구 LLM 생성 실패 → 기본본 사용: {e}")
         try:
             deck = deck or cards_from_analysis(analysis)
+            if cid:
+                deck["category"] = cid  # 카드형 릴스가 카테고리 나레이션 톤을 쓴다
             cards_json_path(path).write_text(json.dumps(deck, ensure_ascii=False, indent=2), encoding="utf-8")
             print(f"  └ 카드뉴스 문구: {cards_json_path(path).name} ({deck.get('by', '')})")
         except CardError as e:

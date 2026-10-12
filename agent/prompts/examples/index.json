@@ -3,6 +3,7 @@
   "title": "명숙 할머니의 캠핑 잔소리 #1",
   "status": "후보",
   "source": "우리 콘텐츠",
+  "category": "캠핑·여행",
   "account": "",
   "formats": [
    "카드뉴스",
@@ -27,6 +28,7 @@
   "title": "3위 결정전 KIA vs LG",
   "status": "후보",
   "source": "우리 콘텐츠",
+  "category": "야구·스포츠",
   "account": "",
   "formats": [
    "카드뉴스",
@@ -51,6 +53,7 @@
   "title": "야덕이 · 두 시즌 기록 비교 2장 카드 (외부)",
   "status": "채택",
   "source": "외부 사례",
+  "category": "야구·스포츠",
   "account": "@yaducki.official (야덕이 | KBO 프로야구 소식, 팔로워 약 10만)",
   "formats": [
    "카드뉴스",
@@ -74,6 +77,7 @@
   "title": "오늘 밤 4개가 갈린다 — 정규시즌 최종전 (짧은 형식 #1)",
   "status": "후보",
   "source": "우리 콘텐츠",
+  "category": "야구·스포츠",
   "account": "",
   "formats": [
    "카드뉴스",
@@ -97,6 +101,7 @@
   "title": "패턴 · 야구·스포츠",
   "status": "채택",
   "source": "외부 사례",
+  "category": "야구·스포츠",
   "account": "@dao.ino @apex_artmagazine @sonminsu_codi @kkabuktoon_baseball @kbo.official (검색 상위, 2026-10-12)",
   "formats": [
    "카드뉴스",
@@ -120,6 +125,7 @@
   "title": "패턴 · 건강·안전",
   "status": "채택",
   "source": "외부 사례",
+  "category": "건강·안전",
   "account": "@kimcoach_kr @health__happyvirus @wellness.notes_ (검색 상위, 2026-10-12)",
   "formats": [
    "카드뉴스",
@@ -141,6 +147,7 @@
   "title": "패턴 · 캠핑·여행",
   "status": "채택",
   "source": "외부 사례",
+  "category": "캠핑·여행",
   "account": "@byeonnoodle @_sohee.e @young2_camping @_roundmag (검색 상위, 2026-10-12)",
   "formats": [
    "카드뉴스",
@@ -163,6 +170,7 @@
   "title": "패턴 · 음식·신상",
   "status": "채택",
   "source": "외부 사례",
+  "category": "음식·신상",
   "account": "@i_doolping.cook @ming_foodie_ @dambit_daily @true_eating (검색 상위, 2026-10-12)",
   "formats": [
    "카드뉴스",
@@ -185,6 +193,7 @@
   "title": "패턴 · 돈·절약",
   "status": "채택",
   "source": "외부 사례",
+  "category": "돈·절약",
   "account": "@na_rongrong_ @thank_geuri @zister.on @malta_note (검색 상위, 2026-10-12)",
   "formats": [
    "카드뉴스",
@@ -207,6 +216,7 @@
   "title": "패턴 · 생활 꿀팁",
   "status": "채택",
   "source": "외부 사례",
+  "category": "생활 꿀팁",
   "account": "@purebeef8 @tti.home @health_fact_bot @time.buja_life (검색 상위, 2026-10-12)",
   "formats": [
    "카드뉴스",
@@ -229,6 +239,7 @@
   "title": "패턴 · AI·IT",
   "status": "채택",
   "source": "외부 사례",
+  "category": "AI·IT",
   "account": "@grappt_ @use.ai.likejimin @onji.lab (검색 상위, 2026-10-12)",
   "formats": [
    "카드뉴스",
@@ -246,5 +257,29 @@
   "metrics": {},
   "notion": "https://app.notion.com/p/3f70abace58c81fb9650c6d49a3a5603",
   "file": "패턴_AI_IT.md"
+ },
+ {
+  "title": "아직도 달걀을 문 칸에? — 냉장고 보관 3가지 (생활 꿀팁 #1)",
+  "status": "후보",
+  "source": "우리 콘텐츠",
+  "category": "생활 꿀팁",
+  "account": "",
+  "formats": [
+   "카드뉴스",
+   "카드형 릴스"
+  ],
+  "topics": [
+   "생활 정보",
+   "안전·건강 생활"
+  ],
+  "hook": "손해 회피",
+  "why": "게시 전 — 카테고리 패턴(생활 꿀팁) 첫 적용. 볼 점: 손해 회피 질문 훅('아직도 ~에?'), 딱 3가지 표 한 장, '몇 개 맞았어?' 점수 댓글 + 저장·친구 공유. 사실은 식약처 안내만.",
+  "characters": [
+   "tokki",
+   "kkobuk"
+  ],
+  "metrics": {},
+  "notion": "https://app.notion.com/p/3f70abace58c81e5ba69f48ac6898a3f",
+  "file": "아직도_달걀을_문_칸에_냉장고_보관_3가지_생활_꿀팁_1.json"
  }
 ]

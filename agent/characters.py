@@ -62,6 +62,8 @@ FADE_BOTTOM = 0.16     # 상반신 컷의 잘린 아래쪽은 투명하게 흐�
 
 
 REMBG_MODEL = "isnet-general-use"
+# 장면 사진(노션 인형 사진)에서 설명 컷을 만들 땐 캐릭터 둘레만 먼저 잘라 낸다(책상·의자가 같이 남지 않게) — 비율(왼, 위, 오른, 아래)
+PEEK_BOX = {"kkobuk_peek": (0.29, 0.335, 0.71, 0.70), "tokki_peek": (0.355, 0.31, 0.745, 0.73)}
 
 
 def cutout(src: Path, out: Path) -> None:
@@ -78,7 +80,11 @@ def cutout(src: Path, out: Path) -> None:
     from rembg import new_session, remove
 
     im = Image.open(src).convert("RGB")
-    im = im.crop((0, 0, im.width, int(im.height * (1 - WATERMARK_CROP))))
+    if src.stem in PEEK_BOX:
+        l, t, r, b = PEEK_BOX[src.stem]
+        im = im.crop((int(l * im.width), int(t * im.height), int(r * im.width), int(b * im.height)))
+    else:
+        im = im.crop((0, 0, im.width, int(im.height * (1 - WATERMARK_CROP))))
     alpha = remove(im, session=new_session(REMBG_MODEL), only_mask=True)
     h = im.height
     fade = np.ones(h)

@@ -57,17 +57,32 @@ def _cast() -> str:
 
 
 MAX_EXAMPLES = 2
+CATEGORY: str | None = None  # 이번 실행의 카테고리 id (prompts/categories.json) — main이 set_category로 정한다
+
+
+def set_category(cid: str | None) -> None:
+    global CATEGORY
+    CATEGORY = cid
+
+
+def _category_name() -> str | None:
+    from .categories import get
+
+    return (get(CATEGORY) or {}).get("name")
 
 
 def _examples() -> str:
     """본보기 카드 세트 (prompts/examples/ — run.bat --sync-notion이 노션 콘텐츠 예시 DB에서 내려받음).
-    채택 세트를 최근 것부터 MAX_EXAMPLES개, 채택이 없으면 후보 1개. 짜임·말투만 보여 주고 사실은 가져오지 못하게 못 박는다."""
+    같은 카테고리의 채택 → 다른 카테고리 채택 → 같은 카테고리 후보 순으로 MAX_EXAMPLES개(후보는 1개).
+    짜임·말투만 보여 주고 사실은 가져오지 못하게 못 박는다."""
     index_file = PROMPT_DIR / "examples" / "index.json"
     if not index_file.exists():
         return ""
     index = [x for x in json.loads(index_file.read_text(encoding="utf-8")) if x["file"].endswith(".json")]
-    picked = [x for x in reversed(index) if x["status"] == "채택"][:MAX_EXAMPLES]
-    picked = picked or [x for x in reversed(index) if x["status"] == "후보"][:1]
+    cat = _category_name()
+    adopted = [x for x in reversed(index) if x["status"] == "채택"]
+    picked = ([x for x in adopted if x.get("category") == cat] + [x for x in adopted if x.get("category") != cat])[:MAX_EXAMPLES]
+    picked = picked or [x for x in reversed(index) if x["status"] == "후보" and (not cat or x.get("category") == cat)][:1]
     parts = []
     for x in picked:
         f = PROMPT_DIR / "examples" / x["file"]
@@ -94,17 +109,35 @@ def _refs() -> str:
     if not index_file.exists():
         return ""
     index = json.loads(index_file.read_text(encoding="utf-8"))
+    refs = [x for x in reversed(index) if x["status"] == "채택" and x["file"].endswith(".md")]
+    cat = _category_name()
+    same = [x for x in refs if cat and x.get("category") == cat]
     parts = []
-    for x in [x for x in reversed(index) if x["status"] == "채택" and x["file"].endswith(".md")][:MAX_REFS]:
+    for x in (same or refs)[:MAX_REFS]:  # 카테고리가 정해지면 그 카테고리 것만 전부, 아니면 모든 카테고리를 앞 몇 줄씩
         f = PROMPT_DIR / "examples" / x["file"]
         if f.exists():
+            lines = f.read_text(encoding="utf-8").strip().splitlines()
             parts.append(f"  ▸ {x['title']} (훅 {x.get('hook') or '-'} · {', '.join(x.get('formats', []))})\n"
-                         + "\n".join("    " + line for line in f.read_text(encoding="utf-8").strip().splitlines()[:REF_LINES]))
+                         + "\n".join("    " + line for line in (lines if same else lines[:REF_LINES])))
+    guide = _category_guide()
     if not parts:
-        return ""
-    return ("- 참고 사례(다른 계정, 노션 콘텐츠 예시 DB의 외부 사례): 이번 주제와 **같은 카테고리**의 패턴을 골라 **구조만** 본받는다 — "
+        return guide
+    how = ("이번 카테고리의 패턴" if same else "이번 주제와 **같은 카테고리**의 패턴을 골라")
+    return (guide + "- 참고 사례(다른 계정, 노션 콘텐츠 예시 DB의 외부 사례): " + how + " **구조만** 본받는다 — "
             "장 수·길이·배치·강조 방식·마무리 장치. "
             "그 계정의 문구·사진·로고·캐릭터는 쓰지 않고, 우리 캐릭터와 채널 키트 디자인으로 바꾼다.\n" + "\n".join(parts))
+
+
+def _category_guide() -> str:
+    """카테고리 기본값 한 묶음(진행·리액션 캐릭터, 형식, 릴스 길이, 나레이션 톤)."""
+    from .categories import get
+
+    c = get(CATEGORY)
+    if not c:
+        return ""
+    fmt = "짧은 형식(2~3장, cards_short 규칙)" if c["format"] == "short" else "기본 형식(5~8장)"
+    return (f"- 카테고리: **{c['name']}** — 진행 `{c['host']}`, 리액션 `{c['reaction']}`, {fmt}, 릴스 {c['reel']}.\n"
+            f"  나레이션 톤(`say`를 쓸 때): {c['tone']}\n")
 
 
 def _render(template: str, analysis: Analysis, plan: str = "", with_urls: bool = False) -> str:

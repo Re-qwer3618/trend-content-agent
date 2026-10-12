@@ -31,6 +31,8 @@
   요청 프롬프트(`channels.md`의 include)·API 모드·스킬이 같이 쓴다. Windows에서 한글 경로면 렌더러가 죽어서 영문 임시 폴더에서 굽는다.
   캐릭터 한마디는 설명 컷(peek, 노션 `포즈 프롬프트`) 그림이 있으면 오른쪽 위 큰 컷으로 나온다. 릴스 제목은 타자 효과(`agent/typewriter.js`),
   edge-tts가 막히면 Windows 내장 음성으로 대신 만든다.
+  `--category <id>`(없으면 키워드로 추정)는 `agent/prompts/categories.json`의 캐릭터·형식·나레이션 톤과 그 카테고리 패턴·본보기를 쓴다.
+  노션 예시 DB의 '카테고리' 이름과 categories.json의 name이 같아야 한다. 새 세트는 예시 DB에 카테고리를 달아 후보로 올린다.
   `--short`는 하루·한 주 정리용 짧은 카드(2~3장, `agent/prompts/cards_short.md`, 덱에 `"format": "short"` — `style`은 디자인이라 그대로).
   `--card-reel`은 같은 카드로 9:16 릴스(edge-tts 나레이션, 카드의 `say`)를 만든다. 채널 키트는 `cardnews-mumohan`(무모한도전, git 포함).
 - 작성 지침(`agent/prompts/*.md`)은 API 모드와 프롬프트 모드가 같이 씁니다 — 한쪽만 고치는 지침은 없습니다.

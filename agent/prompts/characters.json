@@ -5,7 +5,8 @@
     "kind": "mascot",
     "persona": "성격 급한 직장인 거북이. 새 소식에 제일 먼저 놀라고 호들갑 떠는 리액션 담당. 반말 섞인 친근한 말투 — \"헐, 이거 실화야?\", \"잠깐만, 나만 몰랐어?\"",
     "images": {
-      "shock": "kkobuk"
+      "shock": "kkobuk",
+      "peek": "kkobuk_peek"
     },
     "avatar": "kkobuk",
     "voice": {
@@ -26,7 +27,8 @@
     "persona": "차분하고 다정한 정리 담당 토끼. 핵심을 짧게 정리해 주고 저장·댓글을 권한다. 존댓말 — \"정리해 드릴게요\", \"저장해 두세요!\"",
     "images": {
       "smile": "tokki_v2",
-      "shock": "tokki_v1"
+      "shock": "tokki_v1",
+      "peek": "tokki_peek"
     },
     "avatar": "tokki_v2",
     "voice": {

@@ -15,7 +15,7 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
-from . import characters
+from . import categories, characters
 from .cardnews import CardError, check_engine, engine_dir
 from .config import PROJECT_DIR
 from .shorts_maker import VOICES, _speakable, pick_bgm
@@ -70,7 +70,14 @@ def card_voices(deck: dict, default: str) -> list[dict]:
     """장마다 읽을 목소리: 그 장의 speaker 캐릭터 → 덱의 host 캐릭터 → 기본(SHORTS_VOICE)."""
     base = {"name": default, "rate": "+8%", "pitch": "+0Hz"}
     host = characters.voice(deck.get("host"))
-    return [{**base, **(characters.voice(c.get("speaker")) or host or {})} for c in deck["cards"]]
+    voices = [{**base, **(characters.voice(c.get("speaker")) or host or {})} for c in deck["cards"]]
+    rate, pitch = categories.voice_offset(deck.get("category"))  # 카테고리 톤: 생활 꿀팁은 빠르게, 건강은 느리게 …
+    return [{**v, "rate": _shift(v["rate"], rate, "%"), "pitch": _shift(v["pitch"], pitch, "Hz")} for v in voices]
+
+
+def _shift(value: str, delta: int, unit: str) -> str:
+    n = int(re.sub(r"[^\d-]", "", value) or 0) + delta
+    return f"{n:+d}{unit}"
 
 
 def synthesize_lines(lines: list[list[str]], voice_dir: Path, voices: list[dict],

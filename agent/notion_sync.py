@@ -239,7 +239,8 @@ def sync_examples(rows: list[dict], char_rows: list[dict]) -> list[str]:
             file = f"{_slug(title)}.json"
             (EXAMPLE_DIR / file).write_text(json.dumps(deck, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
         keep.add(file)
-        index.append({"title": title, "status": status, "source": source, "account": _val(page, "계정") or "",
+        index.append({"title": title, "status": status, "source": source, "category": _val(page, "카테고리"),
+                      "account": _val(page, "계정") or "",
                       "formats": _val(page, "형식") or [],
                       "topics": _val(page, "주제") or [], "hook": _val(page, "훅 유형"),
                       "why": _val(page, "잘된 이유") or "", "characters": [ids[i] for i in _val(page, "캐릭터") or [] if i in ids],

@@ -49,6 +49,48 @@ def avatar_path(cid: str) -> Path | None:
     return p if p.is_file() else None
 
 
+def peek_path(cid: str | None) -> Path | None:
+    """설명 컷(오른쪽 위에서 내려다보는 자세)의 배경 뺀 그림 — images의 peek 키, prep()이 <key>_cut.png로 만든다."""
+    c = get(cid)
+    key = (c or {}).get("images", {}).get("peek")
+    p = ASSET_DIR / f"{key}_cut.png" if key else None
+    return p if p and p.is_file() else None
+
+
+WATERMARK_CROP = 0.07  # 무료 Pollinations 그림 아래 오른쪽의 로고 글자 — 아래 7%를 잘라 낸다
+FADE_BOTTOM = 0.16     # 상반신 컷의 잘린 아래쪽은 투명하게 흐려 카드 위에서 자연스럽게
+
+
+REMBG_MODEL = "isnet-general-use"
+
+
+def cutout(src: Path, out: Path) -> None:
+    """배경을 투명하게(rembg — 로컬 AI 분할, 무료) → 아래 흐리게 → 여백 자르기.
+    모델(약 170MB)은 처음 한 번 받아 워크스페이스의 envs/miniconda3/cache/u2net에 둔다(U2NET_HOME)."""
+    import os
+
+    import numpy as np
+    from PIL import Image
+
+    cache = PROJECT_DIR.parent.parent / "envs" / "miniconda3" / "cache" / "u2net"
+    if cache.parent.is_dir():
+        os.environ.setdefault("U2NET_HOME", str(cache))
+    from rembg import new_session, remove
+
+    im = Image.open(src).convert("RGB")
+    im = im.crop((0, 0, im.width, int(im.height * (1 - WATERMARK_CROP))))
+    alpha = remove(im, session=new_session(REMBG_MODEL), only_mask=True)
+    h = im.height
+    fade = np.ones(h)
+    n = int(h * FADE_BOTTOM)
+    fade[h - n:] = np.linspace(1, 0, n)
+    alpha = Image.fromarray((np.asarray(alpha) * fade[:, None]).astype(np.uint8))
+    rgba = im.convert("RGBA")
+    rgba.putalpha(alpha)
+    box = alpha.point(lambda v: 255 if v > 24 else 0).getbbox()
+    (rgba.crop(box) if box else rgba).save(out)
+
+
 def voice(cid: str | None) -> dict | None:
     c = get(cid)
     return c.get("voice") if c else None
@@ -60,7 +102,13 @@ def prep() -> list[str]:
 
     made = []
     for src in sorted(ASSET_DIR.glob("*.png")):
-        if src.stem.endswith("_avatar"):
+        if src.stem.endswith(("_avatar", "_cut")):
+            continue
+        if src.stem.endswith("_peek"):  # 설명 컷은 배경만 빼 둔다(카드용 jpg·아바타 없음)
+            cut = src.with_name(f"{src.stem}_cut.png")
+            if not cut.exists():
+                cutout(src, cut)
+                made.append(cut.name)
             continue
         jpg = src.with_suffix(".jpg")
         if not jpg.exists():
@@ -105,7 +153,8 @@ def make(cid: str, force: bool = False, log=print) -> list[str]:
         if out.exists() and not force:
             continue
         # 무료 모델은 앞쪽 70단어 안팎만 읽는다 → 스타일·인물 → {mood}(표정) → 장소 순서의 짧은 문장 하나
-        prompt = gen["prompt"].replace("{mood}", gen["moods"].get(mood, ""))
+        # 자세가 다른 컷(peek 등)은 장면이 다르므로 gen.poses의 통째 프롬프트를 쓴다(흰 배경 → prep()이 배경을 뺌)
+        prompt = gen.get("poses", {}).get(mood) or gen["prompt"].replace("{mood}", gen["moods"].get(mood, ""))
         seed = gen.get("seed", zlib.crc32(cid.encode()) % 10**6)
         for attempt in range(3):
             time.sleep(max(0.0, last + interval - time.time()))
@@ -116,7 +165,8 @@ def make(cid: str, force: bool = False, log=print) -> list[str]:
                 from io import BytesIO
                 from PIL import Image
                 Image.open(BytesIO(r.content)).convert("RGB").save(out)
-                for stale in (out.with_suffix(".jpg"), out.with_name(f"{out.stem}_avatar.png")):
+                for stale in (out.with_suffix(".jpg"), out.with_name(f"{out.stem}_avatar.png"),
+                              out.with_name(f"{out.stem}_cut.png")):
                     stale.unlink(missing_ok=True)
                 made.append(out.name)
                 log(f"  · {c['name']} {mood} → {out.name}")

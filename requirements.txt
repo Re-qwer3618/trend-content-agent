@@ -6,3 +6,5 @@ google-genai>=2.0
 moviepy>=2.2,<3
 edge-tts>=7.2.8
 numpy>=2.0
+# 캐릭터 설명 컷 배경 빼기 (characters.cutout) — 2.0.85부터 pillow 12가 필요해 moviepy(pillow<12)와 충돌
+rembg[cpu]>=2.0.69,<2.0.85

@@ -21,6 +21,7 @@ from .config import PROJECT_DIR
 from .shorts_maker import VOICES, _speakable, pick_bgm
 
 HIDE_SWIPE = "<style>.swipe { visibility: hidden; }</style>\n</head>"
+TYPEWRITER = Path(__file__).with_name("typewriter.js")  # 제목 타자 효과 (릴스 복사본에만)
 BGM_VOLUME = 0.12
 
 
@@ -31,6 +32,7 @@ class ReelResult:
     duration: float
     lines: int
     bgm: str
+    voice_engine: str = "edge-tts"
 
 
 def video_dir() -> Path:
@@ -71,10 +73,21 @@ def card_voices(deck: dict, default: str) -> list[dict]:
     return [{**base, **(characters.voice(c.get("speaker")) or host or {})} for c in deck["cards"]]
 
 
-def synthesize_lines(lines: list[list[str]], voice_dir: Path, voices: list[dict]) -> list[list[dict]]:
-    import edge_tts
-
+def synthesize_lines(lines: list[list[str]], voice_dir: Path, voices: list[dict],
+                     log=print) -> tuple[list[list[dict]], str]:
+    """장마다 목소리 파일. edge-tts가 막히면(403 등) Windows 내장 한국어 음성으로 전부 다시 만든다
+    (캐릭터별 목소리 구분은 없어지지만 릴스는 나온다). 돌려주는 값: (narration 항목, 쓴 엔진 이름)."""
     voice_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        return _synthesize(lines, voice_dir, voices, _edge), "edge-tts"
+    except CardError as e:
+        if os.name != "nt":
+            raise
+        log(f"  ! {e} → Windows 내장 음성으로 대신 만듦 (캐릭터별 목소리 구분 없음)")
+        return _synthesize(lines, voice_dir, voices, _sapi), "Windows 내장 음성"
+
+
+def _synthesize(lines, voice_dir: Path, voices, engine) -> list[list[dict]]:
     cards = []
     for i, (card_lines, v) in enumerate(zip(lines, voices), start=1):
         entries = []
@@ -82,15 +95,41 @@ def synthesize_lines(lines: list[list[str]], voice_dir: Path, voices: list[dict]
             path = voice_dir / f"{i:02d}-{k}.mp3"
             for attempt in range(3):
                 try:
-                    edge_tts.Communicate(_speakable(text), v["name"], rate=v["rate"], pitch=v["pitch"]).save_sync(str(path))
+                    engine(_speakable(text), v, path)
                     if path.stat().st_size > 0:
                         break
                 except Exception as e:  # edge-tts는 네트워크 오류를 여러 종류로 던진다
                     if attempt == 2:
-                        raise CardError(f"나레이션 합성 실패 ({i}번 장): {e}") from e
+                        raise CardError(f"나레이션 합성 실패 ({i}번 장): {str(e)[:120]}") from e
             entries.append({"show": text, "file": f"voice/{path.name}"})
         cards.append(entries)
     return cards
+
+
+def _edge(text: str, v: dict, path: Path) -> None:
+    import edge_tts
+
+    edge_tts.Communicate(text, v["name"], rate=v["rate"], pitch=v["pitch"]).save_sync(str(path))
+
+
+SAPI_PS = ("Add-Type -AssemblyName System.Speech; $s = New-Object System.Speech.Synthesis.SpeechSynthesizer; "
+           "$v = $s.GetInstalledVoices() | Where-Object { $_.VoiceInfo.Culture.Name -eq 'ko-KR' } | Select-Object -First 1; "
+           "if (-not $v) { exit 3 }; $s.SelectVoice($v.VoiceInfo.Name); $s.Rate = [int]$env:SAPI_RATE; "
+           "$s.SetOutputToWaveFile($env:SAPI_OUT); $s.Speak($env:SAPI_TEXT); $s.Dispose()")
+
+
+def _sapi(text: str, v: dict, path: Path) -> None:
+    """Windows 내장 한국어 음성(예: Microsoft Heami) → wav → mp3. 속도만 edge의 rate(+10% ≈ 1단계)를 따른다."""
+    rate = max(-10, min(10, round(int(re.sub(r"[^\d-]", "", v.get("rate", "0")) or 0) / 10)))
+    wav = path.with_suffix(".wav")
+    env = {**os.environ, "SAPI_RATE": str(rate), "SAPI_OUT": str(wav), "SAPI_TEXT": text}
+    proc = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", SAPI_PS], env=env,
+                          capture_output=True, text=True, encoding="utf-8", errors="replace", stdin=subprocess.DEVNULL)
+    if proc.returncode != 0 or not wav.is_file():
+        raise CardError("Windows 내장 한국어 음성이 없습니다" if proc.returncode == 3 else proc.stderr.strip()[-200:])
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(wav), "-codec:a", "libmp3lame", "-q:a", "3", str(path)],
+                   check=True, capture_output=True)
+    wav.unlink(missing_ok=True)
 
 
 SAFE_FORMAT = "reelsafe"
@@ -132,8 +171,9 @@ def make_card_reel(deck: dict, set_dir: Path, out_dir: Path, voice: str | None =
         work = Path(tmp) / "set"
         shutil.copytree(set_dir, work, ignore=shutil.ignore_patterns("out", "preview", "video"))
         html = (work / "cards.html").read_text(encoding="utf-8")
-        (work / "cards.html").write_text(html.replace("</head>", HIDE_SWIPE, 1), encoding="utf-8")
-        narration = synthesize_lines(lines, work / "voice", card_voices(deck, voice))
+        script = f"<script>\n{TYPEWRITER.read_text(encoding='utf-8')}\n</script>\n"
+        (work / "cards.html").write_text(html.replace("</head>", script + HIDE_SWIPE, 1), encoding="utf-8")
+        narration, engine = synthesize_lines(lines, work / "voice", card_voices(deck, voice))
         (work / "narration.json").write_text(json.dumps({"cards": narration}, ensure_ascii=False, indent=1),
                                              encoding="utf-8")
         fmt = ensure_safe_format()
@@ -160,7 +200,7 @@ def make_card_reel(deck: dict, set_dir: Path, out_dir: Path, voice: str | None =
         (out_dir / "cards_reel_script.txt").write_text(
             "\n".join(f"[{i}] {' / '.join(x)}" for i, x in enumerate(lines, start=1)) + "\n", encoding="utf-8")
     return ReelResult(video, frames if frames.exists() else None, _duration(video),
-                      sum(len(x) for x in lines), bgm_name)
+                      sum(len(x) for x in lines), bgm_name, engine)
 
 
 def _mix_bgm(video: Path, bgm: Path, out: Path) -> None:

@@ -283,6 +283,10 @@ def _card(c: dict, i: int, total: int, set_dir: Path) -> str:
     kind = c.get("type", "page")
     name = re.sub(r"[^a-z0-9-]", "", (c.get("name") or f"card-{i + 1}").lower()) or f"card-{i + 1}"
     cls = "card cover" if kind == "cover" else "card"
+    # 한마디 캐릭터에게 설명 컷(배경 뺀 peek 그림)이 있으면 오른쪽 위에서 내려다보는 큰 컷으로, 없으면 아바타 한 줄로
+    peek = characters.peek_path(c.get("speaker")) if c.get("line") else None
+    if peek:
+        cls += " has-peek"
     parts = ['  <div class="bar" data-motion="none"><span data-token="name"></span><span data-page></span></div>']
     if kind != "cover" and c.get("pill"):
         parts.append(f'  <span class="pill">{_esc(c["pill"])}</span>')
@@ -290,7 +294,11 @@ def _card(c: dict, i: int, total: int, set_dir: Path) -> str:
     parts.append(f"  <{tag}>{_inline(c.get('title', ''), 'mark' if kind == 'cover' else 'em')}</{tag}>")
     if c.get("desc"):
         parts.append(f'  <p class="desc">{_inline(c["desc"], "b")}</p>')
-    if c.get("speaker") and c.get("line"):
+    if peek:
+        name_ = characters.get(c["speaker"])["name"]
+        parts.append(f'  <div class="peek"><img src="{_asset(peek, set_dir)}" alt="">'
+                     f'<div class="say-bubble"><small>{_esc(name_)}</small>{_inline(c["line"], "b")}</div></div>')
+    elif c.get("speaker") and c.get("line"):
         parts.append(_talk_line(c["speaker"], c["line"], set_dir))
     if c.get("shot"):
         parts.append(_shot(c["shot"], set_dir))

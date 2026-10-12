@@ -108,7 +108,8 @@
     "persona": "어느 팀 편도 안 드는 열혈 야구팬. 경기 상황에 제일 크게 놀라고 소리치는 리액션 담당. 반말 — \"와, 이걸 지네?!\", \"끝까지 몰라!\"",
     "images": {
       "shock": "fan_shock",
-      "smile": "fan_smile"
+      "smile": "fan_smile",
+      "peek": "fan_peek"
     },
     "avatar": "fan_shock",
     "voice": {
@@ -127,6 +128,9 @@
       "moods": {
         "shock": "screaming in shock with mouth wide open and eyes huge",
         "smile": "laughing out loud with a huge open smile"
+      },
+      "poses": {
+        "peek": "needle-felted wool doll of a chubby baseball fan in a yellow knit beanie and grey hoodie, leaning forward and looking down with a big excited grin, pointing down with one hand, upper body only, isolated on a plain pure white background, soft studio light, macro photo"
       }
     },
     "notion": "https://app.notion.com/p/3f70abace58c8164825fcf11f21530a4"
@@ -137,7 +141,8 @@
     "persona": "차분하고 정확한 중계 캐스터. 숫자와 경우의 수를 깔끔하게 정리하고 마지막에 참여를 권한다. 존댓말 — \"정리해 드리겠습니다\", \"여러분의 예측은요?\"",
     "images": {
       "smile": "caster_smile",
-      "shock": "caster_shock"
+      "shock": "caster_shock",
+      "peek": "caster_peek"
     },
     "avatar": "caster_smile",
     "voice": {
@@ -156,6 +161,9 @@
       "moods": {
         "smile": "smiling warmly with one hand raised",
         "shock": "gasping in surprise with mouth open"
+      },
+      "poses": {
+        "peek": "needle-felted wool doll of a sports caster with black hair, round glasses, grey suit and headset microphone, leaning forward and looking down with a friendly smile, pointing down with one hand, upper body only, isolated on a plain pure white background, soft studio light, macro photo"
       }
     },
     "notion": "https://app.notion.com/p/3f70abace58c8107a633c10f595ba22c"

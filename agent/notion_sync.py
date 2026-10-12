@@ -132,6 +132,9 @@ def _character(page: dict, old: dict) -> dict:
         seed = _val(page, "시드")
         c["gen"] = {**({"seed": int(seed)} if seed is not None else {}), "prompt": _val(page, "생성 프롬프트"),
                     "moods": _pairs(_val(page, "표정 프롬프트"), "|")}
+        poses = _pairs(_val(page, "포즈 프롬프트"), "|")  # peek=… (오른쪽 위 설명 컷, 흰 배경 통째 프롬프트)
+        if poses:
+            c["gen"]["poses"] = poses
     c["notion"] = _url(page)
     return c
 

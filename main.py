@@ -365,7 +365,8 @@ def make_card_reel_for(report: Path, settings) -> int:
     except (CardError, OSError, subprocess.TimeoutExpired) as e:
         print(f"[카드형 릴스] {e}", file=sys.stderr)
         return 1
-    print(f"✔ 카드형 릴스: {r.video}  ({r.duration:.1f}초, 나레이션 {r.lines}줄{', BGM ' + r.bgm if r.bgm else ''})")
+    print(f"✔ 카드형 릴스: {r.video}  ({r.duration:.1f}초, 나레이션 {r.lines}줄 · {r.voice_engine}"
+          f"{', BGM ' + r.bgm if r.bgm else ''})")
     if r.frames:
         print(f"  장면 모음: {r.frames}")
     return 0

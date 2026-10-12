@@ -157,6 +157,15 @@ API 모드면 카드 문구를 짧은 형식으로 씁니다. 카드형 릴스�
 이미지는 git 밖 `assets\characters\` — 새 PC에서는 `characters.json`의 노션 링크(캐릭터 행 본문 이미지)에서 받아 원본 png로 넣고 `run.bat --prep-characters`
 (생성 캐릭터는 `run.bat --make-character <id>`로 다시 만들어도 같은 seed라 같은 얼굴).
 
+### 설명 컷·타자 효과·색
+
+- **설명 컷(peek)**: 캐릭터가 카드 오른쪽 위에서 몸을 내밀고 내려다보며 말한다. 노션 캐릭터 DB의 `포즈 프롬프트`(peek=…, 흰 배경)와
+  `이미지 키`(peek=<id>_peek)를 채우고 `--sync-notion` → `--make-character <id>`. 배경은 rembg(로컬 AI, 모델은 처음 한 번
+  `envs\miniconda3\cache\u2net`에 받음)가 빼고, 워터마크가 있는 아래쪽은 잘라 흐리게 처리. 장의 `speaker`+`line`이 있으면 자동으로 이 컷을 씀.
+- **타자 효과**: 카드형 릴스에서 제목이 한 글자씩 타자 치듯 나온다(`agent/typewriter.js`를 릴스용 복사본에만 넣음, 키트는 그대로).
+- **나레이션 예비 음성**: edge-tts가 막히면(403 등) Windows 내장 한국어 음성(Microsoft Heami)으로 대신 만든다 — 캐릭터별 목소리 구분 없음.
+- **색**: 표지 남색 + 흰 글자 + 노랑 띠, 내지 흰 바탕 + 파랑 강조 한 가지(`cardnews-mumohan` 키트).
+
 ### 노션 동기화 (agent/notion_sync.py)
 
 캐릭터·레퍼런스·본보기는 **노션이 원본**입니다. 노션에서 고친 뒤 `run.bat --sync-notion`(ntn CLI 로그인 필요, 노션은 읽기만):

@@ -164,6 +164,7 @@ run.bat --cards-from reports\20261009_2148_가을_캠핑.md  :: …_cards.json�
 카드 작성 지침 `cards.md`의 `{{examples}}` 자리에 **채택** 세트(최근 2개, 없으면 후보 1개)가 들어가 요청 프롬프트·API 모드의
 본보기가 됩니다 — 짜임·말투만 본받고 사실은 가져오지 않도록 못 박아 둠. 예시 페이지에 카드 JSON 붙이기:
 `run.bat --attach-cards <노션 페이지 URL> reports\<리포트>_cards.json`.
+다른 계정 사례는 출처 `외부 사례`로 넣고 본문 ```markdown 구조 요약만 내려받아 `{{refs}}`(카드·릴스 지침)에 "구조만 본받기"로 들어갑니다.
 
 ### 카드형 릴스 (agent/card_reel.py)
 

@@ -5,7 +5,8 @@
 - 디자인 레퍼런스 허브(카테고리 SNS/카드뉴스) → 스킬 references/sns-hub-rules.md (자동 생성, 손으로 고치지 않음)
   사람이 고른 요약 sns-reference.md는 건드리지 않는다 — 허브가 바뀌었다고 나오면 그 파일을 같이 손본다.
 - 콘텐츠 예시 DB(상태 채택·후보) → agent/prompts/examples/ (index.json + 세트마다 카드 JSON)
-  카드 JSON은 예시 페이지 본문의 ```json 코드 블록(attach_deck이 붙인다). 채택 세트가 카드 작성의 본보기가 된다.
+  우리 콘텐츠는 본문의 ```json 카드 코드 블록(attach_deck이 붙인다), 외부 사례(다른 계정)는 ```markdown 구조 요약 블록.
+  채택 행이 카드·릴스 작성의 본보기가 된다(외부 사례는 구조만 — 문구·사진·캐릭터는 가져오지 않음).
 """
 from __future__ import annotations
 
@@ -190,16 +191,19 @@ def sync_hub(rows: list[dict]) -> list[str]:
 
 # ---------- 콘텐츠 예시 ----------
 
+def _code_blocks(page_id: str, language: str) -> list[str]:
+    return ["".join(x.get("plain_text", "") for x in b["code"]["rich_text"]) for b in _children(page_id)
+            if b["type"] == "code" and b["code"].get("language") == language]
+
+
 def _deck_from_page(page_id: str) -> dict | None:
-    for block in _children(page_id):
-        if block["type"] == "code" and block["code"].get("language") == "json":
-            text = "".join(x.get("plain_text", "") for x in block["code"]["rich_text"])
-            try:
-                deck = json.loads(text)
-            except json.JSONDecodeError:
-                continue
-            if isinstance(deck, dict) and deck.get("cards"):
-                return deck
+    for text in _code_blocks(page_id, "json"):
+        try:
+            deck = json.loads(text)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(deck, dict) and deck.get("cards"):
+            return deck
     return None
 
 
@@ -216,20 +220,30 @@ def sync_examples(rows: list[dict], char_rows: list[dict]) -> list[str]:
         if status not in ("채택", "후보"):
             continue
         title = _val(page, "제목")
-        deck = _deck_from_page(page["id"])
-        if not deck:
-            report.append(f"  ! {title}: 본문에 ```json 카드 코드 블록이 없어 건너뜀 (run.bat --attach-cards)")
-            continue
-        file = f"{_slug(title)}.json"
+        source = _val(page, "출처") or "우리 콘텐츠"
+        if source == "외부 사례":  # 다른 계정 사례: 문구·사진 없이 본문 ```markdown 구조 요약만
+            summary = "\n".join(_code_blocks(page["id"], "markdown")).strip()
+            if not summary:
+                report.append(f"  ! {title}: 본문에 ```markdown 구조 요약 코드 블록이 없어 건너뜀")
+                continue
+            file = f"{_slug(title)}.md"
+            (EXAMPLE_DIR / file).write_text(summary + "\n", encoding="utf-8")
+        else:
+            deck = _deck_from_page(page["id"])
+            if not deck:
+                report.append(f"  ! {title}: 본문에 ```json 카드 코드 블록이 없어 건너뜀 (run.bat --attach-cards)")
+                continue
+            file = f"{_slug(title)}.json"
+            (EXAMPLE_DIR / file).write_text(json.dumps(deck, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
         keep.add(file)
-        (EXAMPLE_DIR / file).write_text(json.dumps(deck, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-        index.append({"title": title, "status": status, "formats": _val(page, "형식") or [],
+        index.append({"title": title, "status": status, "source": source, "account": _val(page, "계정") or "",
+                      "formats": _val(page, "형식") or [],
                       "topics": _val(page, "주제") or [], "hook": _val(page, "훅 유형"),
                       "why": _val(page, "잘된 이유") or "", "characters": [ids[i] for i in _val(page, "캐릭터") or [] if i in ids],
                       "metrics": {k: _val(page, k) for k in ("저장", "공유", "댓글") if _val(page, k) is not None},
                       "notion": _url(page), "file": file})
-        report.append(f"  · [{status}] {title}")
-    for stale in EXAMPLE_DIR.glob("*.json"):
+        report.append(f"  · [{status}·{source}] {title}")
+    for stale in [*EXAMPLE_DIR.glob("*.json"), *EXAMPLE_DIR.glob("*.md")]:
         if stale.name not in keep:
             stale.unlink()
             report.append(f"  - {stale.name} (노션에서 빠져 지움)")

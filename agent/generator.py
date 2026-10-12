@@ -42,7 +42,9 @@ def _prompt(name: str) -> str:
     text = _INCLUDE_RE.sub(lambda m: (PROMPT_DIR / f"{m.group(1)}.md").read_text(encoding="utf-8").strip(), text)
     if "{{cast}}" in text:
         text = text.replace("{{cast}}", _cast())
-    return text.replace("{{examples}}", _examples()) if "{{examples}}" in text else text
+    if "{{examples}}" in text:
+        text = text.replace("{{examples}}", _examples())
+    return text.replace("{{refs}}", _refs()) if "{{refs}}" in text else text
 
 
 def _cast() -> str:
@@ -63,7 +65,7 @@ def _examples() -> str:
     index_file = PROMPT_DIR / "examples" / "index.json"
     if not index_file.exists():
         return ""
-    index = json.loads(index_file.read_text(encoding="utf-8"))
+    index = [x for x in json.loads(index_file.read_text(encoding="utf-8")) if x["file"].endswith(".json")]
     picked = [x for x in reversed(index) if x["status"] == "채택"][:MAX_EXAMPLES]
     picked = picked or [x for x in reversed(index) if x["status"] == "후보"][:1]
     parts = []
@@ -80,6 +82,27 @@ def _examples() -> str:
         return ""
     return ("- 본보기 세트(노션 콘텐츠 예시 DB): 장 흐름·훅·캐릭터 쓰임·`say` 길이·캡션 짜임만 참고한다. "
             "**사실·수치·고유명사·문구는 가져오지 않는다** — 이번 주제의 근거로만 쓴다.\n" + "\n".join(parts))
+
+
+MAX_REFS = 3
+
+
+def _refs() -> str:
+    """외부 사례(다른 계정)의 구조 요약 — 채택만, 최근 MAX_REFS개. 카드(cards.md)와 릴스(reels.md) 지침에 들어간다."""
+    index_file = PROMPT_DIR / "examples" / "index.json"
+    if not index_file.exists():
+        return ""
+    index = json.loads(index_file.read_text(encoding="utf-8"))
+    parts = []
+    for x in [x for x in reversed(index) if x["status"] == "채택" and x["file"].endswith(".md")][:MAX_REFS]:
+        f = PROMPT_DIR / "examples" / x["file"]
+        if f.exists():
+            parts.append(f"  ▸ {x['title']} (훅 {x.get('hook') or '-'} · {', '.join(x.get('formats', []))})\n"
+                         + "\n".join("    " + line for line in f.read_text(encoding="utf-8").strip().splitlines()))
+    if not parts:
+        return ""
+    return ("- 참고 사례(다른 계정, 노션 콘텐츠 예시 DB의 외부 사례): **구조만** 본받는다 — 장 수·배치·강조 방식·마무리 장치. "
+            "그 계정의 문구·사진·로고·캐릭터는 쓰지 않고, 우리 캐릭터와 채널 키트 디자인으로 바꾼다.\n" + "\n".join(parts))
 
 
 def _render(template: str, analysis: Analysis, plan: str = "", with_urls: bool = False) -> str:

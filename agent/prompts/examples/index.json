@@ -2,6 +2,8 @@
  {
   "title": "명숙 할머니의 캠핑 잔소리 #1",
   "status": "후보",
+  "source": "우리 콘텐츠",
+  "account": "",
   "formats": [
    "카드뉴스",
    "카드형 릴스"
@@ -24,6 +26,8 @@
  {
   "title": "3위 결정전 KIA vs LG",
   "status": "후보",
+  "source": "우리 콘텐츠",
+  "account": "",
   "formats": [
    "카드뉴스",
    "카드형 릴스"
@@ -42,5 +46,28 @@
   "metrics": {},
   "notion": "https://app.notion.com/p/3f70abace58c81a79e76cdbd72e1af0a",
   "file": "3위_결정전_KIA_vs_LG.json"
+ },
+ {
+  "title": "야덕이 · 두 시즌 기록 비교 2장 카드 (외부)",
+  "status": "채택",
+  "source": "외부 사례",
+  "account": "@yaducki.official (야덕이 | KBO 프로야구 소식, 팔로워 약 10만)",
+  "formats": [
+   "카드뉴스",
+   "카드형 릴스"
+  ],
+  "topics": [
+   "야구",
+   "스포츠"
+  ],
+  "hook": "숫자·랭킹",
+  "why": "하루·한 주 경기 이슈를 2장으로 끝내는 짧은 정리. 표지는 큰 숫자 하나 + 좌우 대비, 2장은 비교표 + 다음을 기대하게 하는 마무리 한 줄. 포인트 색 하나(라임)로 '같은 점'만 강조, 기준은 각주로. 상단 로고·하단 계정+슬로건 고정이라 피드에서 시리즈로 보임. 우리는 실존 선수 사진·구단 로고 대신 자체 캐릭터(캐스터 정리, 직관이 리액션)와 도형으로.",
+  "characters": [
+   "caster",
+   "fan"
+  ],
+  "metrics": {},
+  "notion": "https://app.notion.com/p/3f70abace58c81c3add7c57172edbfa1",
+  "file": "야덕이_두_시즌_기록_비교_2장_카드_외부.md"
  }
 ]

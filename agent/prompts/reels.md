@@ -43,3 +43,5 @@
 {{include:visual_rules}}
 
 {{include:viral}}
+
+{{refs}}

@@ -69,5 +69,28 @@
   "metrics": {},
   "notion": "https://app.notion.com/p/3f70abace58c81c3add7c57172edbfa1",
   "file": "야덕이_두_시즌_기록_비교_2장_카드_외부.md"
+ },
+ {
+  "title": "오늘 밤 4개가 갈린다 — 정규시즌 최종전 (짧은 형식 #1)",
+  "status": "후보",
+  "source": "우리 콘텐츠",
+  "account": "",
+  "formats": [
+   "카드뉴스",
+   "카드형 릴스"
+  ],
+  "topics": [
+   "야구",
+   "스포츠"
+  ],
+  "hook": "숫자·랭킹",
+  "why": "게시 전 — 짧은 형식(--short) 첫 세트. 볼 점: 표지 큰 숫자 훅('4개'), 내지 한 장에 네 경쟁의 숫자를 나란히, 마무리는 예측 댓글 + 다음 일정. 외부 사례(야덕이 2장 비교) 구조를 우리 채널 키트·캐릭터로 옮김.",
+  "characters": [
+   "caster",
+   "fan"
+  ],
+  "metrics": {},
+  "notion": "https://app.notion.com/p/3f70abace58c8145aa02d91f29b25318",
+  "file": "오늘_밤_4개가_갈린다_정규시즌_최종전_짧은_형식_1.json"
  }
 ]

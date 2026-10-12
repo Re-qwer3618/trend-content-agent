@@ -146,13 +146,14 @@ CARDS_SCHEMA = {
 }
 
 
-def generate_cards(analysis, llm) -> dict:
-    """API 모드: 카드뉴스 문구를 LLM으로 (규칙은 prompts/cards.md — 웹 LLM 요청 프롬프트·스킬과 같은 파일)."""
+def generate_cards(analysis, llm, short: bool = False) -> dict:
+    """API 모드: 카드뉴스 문구를 LLM으로 (규칙은 prompts/cards.md — 웹 LLM 요청 프롬프트·스킬과 같은 파일).
+    short=True면 cards_short.md(2~3장 정리)를 덧붙인다."""
     from .analyzer import digest
     from .generator import _prompt
 
     main = analysis.insight.get("seo_keywords", {}).get("main") or analysis.keyword or ""
-    system = _prompt("system") + "\n\n" + _prompt("cards")
+    system = _prompt("system") + "\n\n" + _prompt("cards") + ("\n\n" + _prompt("cards_short") if short else "")
     cast = ", ".join(f"{k}({v['name']})" for k, v in characters.all_characters().items())
     request = (f"아래 리서치로 인스타그램 피드 카드뉴스 문구를 만들어 줘. 메인 키워드: {main}\n"
                f"출연 가능한 캐릭터 id: {cast}. character 화면은 shot_items 하나에 key=캐릭터 id, value=말풍선.\n"
@@ -181,7 +182,7 @@ def generate_cards(analysis, llm) -> dict:
                                         "shot": shot}.items() if v})
     if not cards:
         raise CardError("LLM이 카드를 만들지 않았습니다")
-    return {"version": 1, "style": "series",
+    return {"version": 1, "style": "series", **({"format": "short"} if short else {}),
             "topic": data.get("topic") or main, "by": llm.label, "cards": cards,
             "caption": data.get("caption", ""), "hashtags": data.get("hashtags", [])}
 

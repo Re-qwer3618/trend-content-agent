@@ -29,6 +29,7 @@
   같은 규칙이 `agent/prompts/*.md`(웹 LLM 요청 프롬프트·API 모드)에도 들어 있으니 둘을 같이 고친다. `channels.md`는 피드+유튜브용이며 요청 프롬프트로만 쓴다.
 - 카드뉴스 PNG는 cardnews-kit 스킬(`.claude/skills/cardnews-*`, git 제외·PC마다 설치)이 굽는다. 카드 문구 JSON 규칙은 `agent/prompts/cards.md` 하나를
   요청 프롬프트(`channels.md`의 include)·API 모드·스킬이 같이 쓴다. Windows에서 한글 경로면 렌더러가 죽어서 영문 임시 폴더에서 굽는다.
+  `--short`는 하루·한 주 정리용 짧은 카드(2~3장, `agent/prompts/cards_short.md`, 덱에 `"format": "short"` — `style`은 디자인이라 그대로).
   `--card-reel`은 같은 카드로 9:16 릴스(edge-tts 나레이션, 카드의 `say`)를 만든다. 채널 키트는 `cardnews-mumohan`(무모한도전, git 포함).
 - 작성 지침(`agent/prompts/*.md`)은 API 모드와 프롬프트 모드가 같이 씁니다 — 한쪽만 고치는 지침은 없습니다.
 - 캐릭터(`characters.json`)·허브 원문(`sns-hub-rules.md`)·본보기(`agent/prompts/examples/`)는 노션이 원본 — 파일을 직접 고치지 말고

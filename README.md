@@ -142,6 +142,12 @@ run.bat --cards-from reports\20261009_2148_가을_캠핑.md  :: …_cards.json�
 이 프로젝트의 `.claude\skills\`에 복사(git 제외 — 키트 코드에 재배포 라이선스가 없음) → `cardnews-engine\scripts`에서 `npm install`(Node 18+, Chrome 또는 Edge 필요).
 다른 위치에 두었다면 `.env`의 `CARDNEWS_ENGINE`. 엔진이 없으면 카드만 건너뛰고 리포트·영상은 그대로 만듭니다(`--check`로 확인).
 
+### 짧은 카드뉴스 (`--short`)
+
+하루·한 주 경기·이슈를 2~3장(표지 큰 숫자 → 근거 한 장 → 예측 질문·다음 일정)으로 끝내는 형식. 규칙은 `agent/prompts/cards_short.md`
+(기본 `cards.md` 위에 얹음), 덱에는 `"format": "short"`. `run.bat "키워드" --short`면 요청 프롬프트 `_요청_cards_short.txt`가 더 생기고,
+API 모드면 카드 문구를 짧은 형식으로 씁니다. 카드형 릴스로 만들면 15~20초.
+
 ### 캐릭터 출연 (agent/characters.py)
 
 `agent/prompts/characters.json`의 캐릭터가 카드·릴스에 나옵니다 — 마스코트 꼬북이·토끼양(노션 에셋 모음집의 인형 사진),

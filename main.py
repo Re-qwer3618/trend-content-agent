@@ -73,6 +73,8 @@ def parse_args(argv=None):
     p.add_argument("--cards-from", metavar="REPORT", help="기존 리포트의 카드 문구(…_cards.json)로 카드만 다시 굽기")
     p.add_argument("--cards-file", metavar="FILE",
                    help="--cards-from 과 함께: 웹 LLM 답변(카드 JSON 코드 블록)이나 JSON 파일을 그 리포트의 카드 문구로 저장 후 굽기")
+    p.add_argument("--short", action="store_true",
+                   help="짧은 카드뉴스(2~3장, 하루·한 주 정리) — API 모드 카드 문구와 요청 프롬프트(_요청_cards_short.txt)에 적용")
     p.add_argument("--card-reel", action="store_true",
                    help="카드뉴스를 굽고 이어서 카드형 릴스(9:16 mp4, edge-tts 나레이션·자막·BGM)까지 (videos/<리포트>/)")
     p.add_argument("--prep-characters", action="store_true",
@@ -242,7 +244,8 @@ def run(args, settings, keyword: str | None) -> int:
         need_images = bool(images) and not (llm and images_by == llm.label)
         if todo or need_images:
             print("▶ 생성: LLM 제작 요청 프롬프트")
-            requests = build_request_prompts(analysis, todo, args.image_issues, include_images=need_images)
+            requests = build_request_prompts(analysis, todo, args.image_issues, include_images=need_images,
+                                             short_cards=args.short)
 
     for note in analysis.notes:
         print(f"  ! {note}")
@@ -272,7 +275,7 @@ def run(args, settings, keyword: str | None) -> int:
         if llm:
             print("▶ 생성: 카드뉴스 문구")
             try:
-                deck = generate_cards(analysis, llm)
+                deck = generate_cards(analysis, llm, short=args.short)
             except (LLMError, CardError, KeyError, ValueError) as e:
                 print(f"  ! 카드뉴스 문구 LLM 생성 실패 → 기본본 사용: {e}")
         try:

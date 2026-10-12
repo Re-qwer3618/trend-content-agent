@@ -115,6 +115,8 @@ description: 트렌드 리포트로 블로그·인스타그램 피드·릴스·�
 2. `run.bat --cards-from reports\<리포트>.md` → `images/<리포트>/cards/out/NN-이름.png`, 모아보기 `preview/sheet.png`.
    사용자가 웹 LLM 답변을 줬으면 파일로 저장해 `--cards-file 답변.txt`를 붙인다.
 3. 경고(`!` 줄: 넘침·작은 글자·어색한 줄바꿈)가 있으면 JSON을 고쳐 다시 굽는다. 경고가 없어도 `sheet.png`를 Read로 열어 겹침·빈 화면을 본다.
+   짧은 정리(하루·한 주 이슈 2~3장)를 요청받으면 `agent/prompts/cards_short.md`를 같이 따르고 덱에 `"format": "short"`를 넣는다
+   (`style`은 키트 디자인 이름이라 `series` 그대로). 경기 전 세트는 기준 시점을 label·캡션에 적고, 결과가 나오면 결과 편을 새로 만든다.
 4. 카드형 릴스가 필요하면 카드마다 `say`(말하듯 한두 문장, 전체 30초 안팎)를 넣고 `--card-reel`을 붙인다
    → `videos/<리포트>/cards_reel.mp4`. `cards_reel-frames.png`로 자막·전환을 확인하고, 노션에는 mp4를 file-upload로 싣는다.
 5. 노션 피드 토글에 PNG를 장 순서대로 업로드(썸네일과 같은 file-upload 방식). 엔진이 없으면(`run.bat --check`의 카드뉴스 엔진 `-`)

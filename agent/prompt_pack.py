@@ -55,6 +55,18 @@ def _channels_prompt(analysis: Analysis) -> str:
     ]))
 
 
+def _short_cards_prompt(analysis: Analysis) -> str:
+    """짧은 카드(2~3장) + 카드형 릴스 — --short일 때만. 기본 카드 규칙 위에 cards_short.md를 얹는다."""
+    return _fence_safe("\n\n".join([
+        f"# 역할\n{_prompt('system').strip()}",
+        f"# 진행 방식\n웹 검색을 쓸 수 있으면 켜고 원문을 확인해 줘.\n{INSIGHT_NOTE}",
+        "# 작업\n아래 리서치로 인스타그램 짧은 카드뉴스(2~3장) JSON을 만들어 줘. "
+        "기본 규칙 다음의 '짧은 카드뉴스 규칙'이 우선한다.\n\n"
+        f"{_prompt('cards').strip()}\n\n{_prompt('cards_short').strip()}",
+        "# 데이터\n" + digest(analysis, with_urls=True),
+    ]))
+
+
 def _fence_safe(text: str) -> str:
     """프롬프트 안의 ``` 를 ~~~ 로 — 리포트·Notion에서 프롬프트 자체를 코드 블록으로 감쌀 때 블록이 깨지지 않게.
     LLM은 ~~~ 도 같은 코드 펜스로 읽는다."""
@@ -81,7 +93,7 @@ def _images_prompt(analysis: Analysis, max_issues: int) -> str:
 
 
 def build_request_prompts(analysis: Analysis, formats: list[str], image_issues: int = 3,
-                          include_images: bool = True) -> list[RequestPrompt]:
+                          include_images: bool = True, short_cards: bool = False) -> list[RequestPrompt]:
     out = []
     for fmt in formats:
         plan_name, draft_name = STAGE_NAMES[fmt]
@@ -92,6 +104,10 @@ def build_request_prompts(analysis: Analysis, formats: list[str], image_issues: 
         out.append(RequestPrompt(
             "channels", "인스타그램 피드(카드뉴스) + 유튜브", _channels_prompt(analysis),
             "블로그·릴스 요청과 같은 대화에 이어서 붙여 넣으면 메시지·CTA를 맞추기 쉬움"))
+    if short_cards and analysis.issues:
+        out.append(RequestPrompt(
+            "cards_short", "인스타그램 짧은 카드뉴스(2~3장) + 카드형 릴스", _short_cards_prompt(analysis),
+            "답변을 파일로 저장해 run.bat --cards-from <리포트>.md --cards-file 답변.txt [--card-reel]"))
     if include_images and analysis.issues:
         out.append(RequestPrompt(
             "images", "이미지 생성 프롬프트 (영문)", _images_prompt(analysis, image_issues),

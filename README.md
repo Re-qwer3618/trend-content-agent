@@ -148,7 +148,22 @@ run.bat --cards-from reports\20261009_2148_가을_캠핑.md  :: …_cards.json�
 가상 인물 명숙 할머니·세아·도윤(노션 캐릭터 프로필, 아직 이미지 없음 → 말투·목소리·이름 배지로만).
 카드 JSON의 `host`(진행 캐릭터), 장마다 `speaker`+`line`(한마디 말풍선), 화면 칸 `character`(마스코트 리액션 컷 + 말풍선).
 릴스는 장의 `speaker`(없으면 `host`) 목소리로 읽습니다(edge-tts 음성 + 속도·높낮이). 바이럴 포맷 규칙은 `agent/prompts/viral.md`.
-이미지는 git 밖 `assets\characters\` — 새 PC에서는 `characters.json`의 노션 링크에서 원본 png를 받아 넣고 `run.bat --prep-characters`.
+이미지는 git 밖 `assets\characters\` — 새 PC에서는 `characters.json`의 노션 링크(캐릭터 행 본문 이미지)에서 받아 원본 png로 넣고 `run.bat --prep-characters`
+(생성 캐릭터는 `run.bat --make-character <id>`로 다시 만들어도 같은 seed라 같은 얼굴).
+
+### 노션 동기화 (agent/notion_sync.py)
+
+캐릭터·레퍼런스·본보기는 **노션이 원본**입니다. 노션에서 고친 뒤 `run.bat --sync-notion`(ntn CLI 로그인 필요, 노션은 읽기만):
+
+| 노션 | 프로젝트 파일 |
+|---|---|
+| AI 엔터테인먼트 캐릭터 프로필 — `캐릭터ID`가 있는 행 (말투·음성·이미지 키·생성/표정 프롬프트·시드·배지) | `agent/prompts/characters.json` |
+| 디자인 레퍼런스 허브 — 카테고리 SNS/카드뉴스 | 스킬 `references/sns-hub-rules.md` (자동 생성, 고른 요약은 `sns-reference.md`) |
+| 콘텐츠 예시 (본보기) — 상태 채택·후보, 본문의 ```json 카드 코드 블록 | `agent/prompts/examples/` (index.json + 세트별 JSON) |
+
+카드 작성 지침 `cards.md`의 `{{examples}}` 자리에 **채택** 세트(최근 2개, 없으면 후보 1개)가 들어가 요청 프롬프트·API 모드의
+본보기가 됩니다 — 짜임·말투만 본받고 사실은 가져오지 않도록 못 박아 둠. 예시 페이지에 카드 JSON 붙이기:
+`run.bat --attach-cards <노션 페이지 URL> reports\<리포트>_cards.json`.
 
 ### 카드형 릴스 (agent/card_reel.py)
 

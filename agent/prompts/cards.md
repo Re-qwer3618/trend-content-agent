@@ -19,6 +19,8 @@
 
 {{include:viral}}
 
+{{examples}}
+
 출력 형식 — 코드 블록 하나(```json)에 아래 모양 그대로:
 
 ```json

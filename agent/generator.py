@@ -40,7 +40,9 @@ def _prompt(name: str) -> str:
     """prompts/<name>.md. 본문의 {{include:파일}} 은 prompts/파일.md 내용으로 바꾼다(공통 규칙을 한 곳에서 관리)."""
     text = (PROMPT_DIR / f"{name}.md").read_text(encoding="utf-8")
     text = _INCLUDE_RE.sub(lambda m: (PROMPT_DIR / f"{m.group(1)}.md").read_text(encoding="utf-8").strip(), text)
-    return text.replace("{{cast}}", _cast()) if "{{cast}}" in text else text
+    if "{{cast}}" in text:
+        text = text.replace("{{cast}}", _cast())
+    return text.replace("{{examples}}", _examples()) if "{{examples}}" in text else text
 
 
 def _cast() -> str:
@@ -50,6 +52,34 @@ def _cast() -> str:
     rows = [f"  - `{k}` {v['name']}{' (이미지 있음)' if v.get('images') else ''}: {v['persona']}"
             for k, v in all_characters().items()]
     return "  출연 캐릭터:\n" + "\n".join(rows)
+
+
+MAX_EXAMPLES = 2
+
+
+def _examples() -> str:
+    """본보기 카드 세트 (prompts/examples/ — run.bat --sync-notion이 노션 콘텐츠 예시 DB에서 내려받음).
+    채택 세트를 최근 것부터 MAX_EXAMPLES개, 채택이 없으면 후보 1개. 짜임·말투만 보여 주고 사실은 가져오지 못하게 못 박는다."""
+    index_file = PROMPT_DIR / "examples" / "index.json"
+    if not index_file.exists():
+        return ""
+    index = json.loads(index_file.read_text(encoding="utf-8"))
+    picked = [x for x in reversed(index) if x["status"] == "채택"][:MAX_EXAMPLES]
+    picked = picked or [x for x in reversed(index) if x["status"] == "후보"][:1]
+    parts = []
+    for x in picked:
+        f = PROMPT_DIR / "examples" / x["file"]
+        if not f.exists():
+            continue
+        deck = json.loads(f.read_text(encoding="utf-8"))
+        deck = {k: deck[k] for k in ("topic", "host", "cards", "caption") if k in deck}
+        parts.append(f"  ▸ {x['title']} ({x['status']} · 훅 {x.get('hook') or '-'} · {', '.join(x.get('topics', []))})"
+                     + (f" — {x['why']}" if x.get("why") else "")
+                     + "\n```json\n" + json.dumps(deck, ensure_ascii=False, separators=(",", ":")) + "\n```")
+    if not parts:
+        return ""
+    return ("- 본보기 세트(노션 콘텐츠 예시 DB): 장 흐름·훅·캐릭터 쓰임·`say` 길이·캡션 짜임만 참고한다. "
+            "**사실·수치·고유명사·문구는 가져오지 않는다** — 이번 주제의 근거로만 쓴다.\n" + "\n".join(parts))
 
 
 def _render(template: str, analysis: Analysis, plan: str = "", with_urls: bool = False) -> str:

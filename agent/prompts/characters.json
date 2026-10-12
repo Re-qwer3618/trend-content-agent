@@ -13,12 +13,12 @@
       "rate": "+12%",
       "pitch": "+20Hz"
     },
-    "notion": "https://app.notion.com/p/3de0abace58c8024b1d4dfb6b1f286e3",
     "topics": [
       "직장·생활",
       "돈·절약",
       "일상 꿀팁"
-    ]
+    ],
+    "notion": "https://app.notion.com/p/3f70abace58c816c9bc9f58777ed990b"
   },
   "tokki": {
     "name": "토끼양",
@@ -34,17 +34,17 @@
       "rate": "+6%",
       "pitch": "+18Hz"
     },
-    "notion": "https://app.notion.com/p/3de0abace58c8056a697f8e69b1cf83f",
     "topics": [
       "직장·생활",
       "정리·요약",
       "뷰티·라이프"
-    ]
+    ],
+    "notion": "https://app.notion.com/p/3f70abace58c81b280aafad01cd5c1fb"
   },
   "myeongsuk": {
     "name": "명숙 할머니",
     "kind": "virtual_human",
-    "profile": "이명숙 · 74세 · 따뜻함·생활연기·코믹 (AI 엔터테인먼트 배우팀)",
+    "profile": "이명숙 · 74세 · AI 엔터테인먼트 · 배우팀 · 따뜻함·생활연기·코믹",
     "persona": "정 많고 잔소리 많은 할머니. 걱정을 잔소리로 표현한다 — \"아이고, 그러다 큰일 나!\", \"밥은 먹고 다니니?\" 꾸중보다 다정함이 먼저.",
     "images": {},
     "avatar": null,
@@ -54,18 +54,18 @@
       "rate": "-6%",
       "pitch": "-14Hz"
     },
-    "notion": "https://app.notion.com/p/40c52a21aaa141d7b0722dad02f10d60",
     "topics": [
       "안전·건강 생활",
       "가족",
       "음식",
       "캠핑·여행"
-    ]
+    ],
+    "notion": "https://app.notion.com/p/6af192ec5c78435f8e05cc23d5c70397"
   },
   "sea": {
     "name": "세아",
     "kind": "virtual_human",
-    "profile": "강세아 · 20세 · LUMIA 래퍼 · 강렬함·미스터리",
+    "profile": "강세아 · 20세 · LUMIA · 강렬함·미스터리",
     "persona": "직설적이고 쿨한 MZ. 짧고 센 한마디 — \"이거 모르면 손해.\", \"내가 해봤어. 결론부터.\"",
     "images": {},
     "avatar": null,
@@ -75,17 +75,17 @@
       "rate": "+10%",
       "pitch": "-4Hz"
     },
-    "notion": "https://app.notion.com/p/40c52a21aaa141d7b0722dad02f10d60",
     "topics": [
       "트렌드",
       "신상·비교",
       "엔터"
-    ]
+    ],
+    "notion": "https://app.notion.com/p/7d0a401cb15f45099572cee5be1c9b4f"
   },
   "doyun": {
     "name": "도윤",
     "kind": "virtual_human",
-    "profile": "박도윤 · 27세 · 배우 · 청량·카리스마",
+    "profile": "박도윤 · 27세 · AI 엔터테인먼트 · 배우팀 · 청량·카리스마",
     "persona": "담백하고 청량한 형/오빠. 직접 해 본 사람처럼 설명 — \"제가 직접 비교해 봤어요.\"",
     "images": {},
     "avatar": null,
@@ -95,21 +95,16 @@
       "rate": "+4%",
       "pitch": "+0Hz"
     },
-    "notion": "https://app.notion.com/p/40c52a21aaa141d7b0722dad02f10d60",
     "topics": [
       "직접 해 봄·리뷰",
       "스포츠",
       "여행"
-    ]
+    ],
+    "notion": "https://app.notion.com/p/15b7fa610db5436e87664d9c411887da"
   },
   "fan": {
     "name": "직관이",
     "kind": "mascot",
-    "topics": [
-      "야구",
-      "스포츠",
-      "경기 결과"
-    ],
     "persona": "어느 팀 편도 안 드는 열혈 야구팬. 경기 상황에 제일 크게 놀라고 소리치는 리액션 담당. 반말 — \"와, 이걸 지네?!\", \"끝까지 몰라!\"",
     "images": {
       "shock": "fan_shock",
@@ -121,6 +116,11 @@
       "rate": "+14%",
       "pitch": "+12Hz"
     },
+    "topics": [
+      "야구",
+      "스포츠",
+      "경기 결과"
+    ],
     "gen": {
       "seed": 31415,
       "prompt": "{mood}, needle-felted wool doll of a chubby baseball fan in a yellow knit beanie and grey hoodie, in tiny ballpark stands at night, green field behind, tilt-shift macro photo",
@@ -129,16 +129,11 @@
         "smile": "laughing out loud with a huge open smile"
       }
     },
-    "notion": null
+    "notion": "https://app.notion.com/p/3f70abace58c8164825fcf11f21530a4"
   },
   "caster": {
     "name": "캐스터",
     "kind": "mascot",
-    "topics": [
-      "야구",
-      "스포츠",
-      "정리·요약"
-    ],
     "persona": "차분하고 정확한 중계 캐스터. 숫자와 경우의 수를 깔끔하게 정리하고 마지막에 참여를 권한다. 존댓말 — \"정리해 드리겠습니다\", \"여러분의 예측은요?\"",
     "images": {
       "smile": "caster_smile",
@@ -150,6 +145,11 @@
       "rate": "+4%",
       "pitch": "+6Hz"
     },
+    "topics": [
+      "야구",
+      "스포츠",
+      "정리·요약"
+    ],
     "gen": {
       "seed": 27182,
       "prompt": "{mood}, needle-felted wool doll of a sports caster with black hair, round glasses, grey suit and headset microphone, at a tiny broadcast desk above a miniature baseball field at night, tilt-shift macro photo",
@@ -158,6 +158,6 @@
         "shock": "gasping in surprise with mouth open"
       }
     },
-    "notion": null
+    "notion": "https://app.notion.com/p/3f70abace58c8107a633c10f595ba22c"
   }
 }

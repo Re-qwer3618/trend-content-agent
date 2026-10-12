@@ -83,6 +83,26 @@ description: 트렌드 리포트로 블로그·인스타그램 피드·릴스·�
 
 카드뉴스·릴스를 만들 땐 `references/sns-reference.md`를 먼저 읽고, 세트를 시작할 때 고른 레퍼런스를 한 줄로 밝힌다
 (예: `레퍼런스: Behance(흐름) + 미리캔버스(국내 톤) + Pinterest(시리즈)`). 다 만든 뒤 그 파일의 규격(안전 영역·글자 크기·강조 한 곳)으로 점검한다.
+`references/sns-hub-rules.md`는 허브 원문(자동 생성)이라 참고만 한다.
+
+**본보기 세트** — 카드 문구를 쓰기 전에 `agent/prompts/examples/index.json`에서 `status: 채택` 세트를 2~3개(주제·훅 유형이
+가까운 것 먼저, 채택이 없으면 후보) 골라 그 카드 JSON을 읽는다. 장 흐름·훅·캐릭터 쓰임·`say` 길이·캡션 짜임만 본받고
+**사실·수치·고유명사·문구는 가져오지 않는다.** 요청 프롬프트·API 모드에는 `cards.md`의 `{{examples}}` 자리로 같은 세트가 자동으로 들어간다.
+
+## 노션 동기화 (노션이 원본)
+
+캐릭터·레퍼런스·본보기는 노션에서 고치고 `run.bat --sync-notion`으로 내려받는다(ntn CLI, 읽기 전용).
+
+| 노션 | 프로젝트 파일 |
+|---|---|
+| AI 엔터테인먼트 캐릭터 프로필 (캐릭터ID 있는 행) | `agent/prompts/characters.json` |
+| 디자인 레퍼런스 허브 › SNS/카드뉴스 | `references/sns-hub-rules.md` (자동) — 바뀌면 `sns-reference.md`를 손본다 |
+| 콘텐츠 예시 (본보기) — 상태 채택·후보 | `agent/prompts/examples/` (index.json + 카드 JSON) |
+
+- 새 예시: 콘텐츠 예시 DB에 행을 만들고(상태 후보, 형식·주제·훅 유형·캐릭터·레퍼런스·캡션, 본문에 모아보기 이미지)
+  `run.bat --attach-cards <페이지 URL> reports\<리포트>_cards.json`으로 카드 JSON을 본문 코드 블록에 붙인다.
+- 게시 후 저장·공유·댓글 숫자와 '잘된 이유'를 채우고, 본보기로 쓸 만하면 상태를 **채택**으로 → 동기화.
+- 새 캐릭터: 캐릭터 프로필 DB에 행(캐릭터ID·말투·음성·이미지 키·생성/표정 프롬프트·시드) → 동기화 → `run.bat --make-character <id>`.
 
 ## 카드뉴스 굽기
 

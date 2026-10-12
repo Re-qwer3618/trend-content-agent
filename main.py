@@ -80,6 +80,10 @@ def parse_args(argv=None):
     p.add_argument("--make-character", nargs="+", metavar="ID",
                    help="characters.json의 gen으로 캐릭터 표정 이미지 만들기 (Pollinations 무료). --force와 함께면 다시 만듦")
     p.add_argument("--force", action="store_true", help="--make-character: 이미 있는 이미지도 다시 만들기")
+    p.add_argument("--sync-notion", action="store_true",
+                   help="노션 → 프로젝트: 캐릭터 프로필 DB·SNS 레퍼런스 허브·콘텐츠 예시(채택/후보)를 파일로 내려받기 (ntn CLI)")
+    p.add_argument("--attach-cards", nargs=2, metavar=("PAGE", "CARDS_JSON"),
+                   help="카드 JSON을 노션 콘텐츠 예시 페이지 본문에 ```json 코드 블록으로 붙이기 (동기화가 읽는 원본)")
     p.add_argument("--voice", choices=["female", "male", "multi"], help="나레이션 음성 (기본 female)")
     p.add_argument("--list", action="store_true",
                    help="기획서 없이 이슈 TOP N(기본 10) 목록만 저장 (reports/..._issues.md/.json)")
@@ -128,6 +132,18 @@ def main(argv=None) -> int:
         os.environ["SHORTS_VOICE"] = args.voice
     if args.images_from:
         return make_images_for(Path(args.images_from), settings, args.image_provider)
+    if args.sync_notion or args.attach_cards:
+        from agent.notion_sync import SyncError, attach_deck, sync_all
+        try:
+            if args.attach_cards:
+                size = attach_deck(args.attach_cards[0], Path(args.attach_cards[1]))
+                print(f"✔ 카드 JSON {size:,}자를 예시 페이지에 붙임")
+            if args.sync_notion:
+                sync_all()
+        except SyncError as e:
+            print(f"✖ {e}")
+            return 1
+        return 0
     if args.make_character:
         from agent.characters import make
         for cid in args.make_character:

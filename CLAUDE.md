@@ -31,3 +31,6 @@
   요청 프롬프트(`channels.md`의 include)·API 모드·스킬이 같이 쓴다. Windows에서 한글 경로면 렌더러가 죽어서 영문 임시 폴더에서 굽는다.
   `--card-reel`은 같은 카드로 9:16 릴스(edge-tts 나레이션, 카드의 `say`)를 만든다. 채널 키트는 `cardnews-mumohan`(무모한도전, git 포함).
 - 작성 지침(`agent/prompts/*.md`)은 API 모드와 프롬프트 모드가 같이 씁니다 — 한쪽만 고치는 지침은 없습니다.
+- 캐릭터(`characters.json`)·허브 원문(`sns-hub-rules.md`)·본보기(`agent/prompts/examples/`)는 노션이 원본 — 파일을 직접 고치지 말고
+  노션(캐릭터 프로필 DB·디자인 레퍼런스 허브·콘텐츠 예시 DB)을 고친 뒤 `run.bat --sync-notion`. 본보기는 상태 '채택'만 프롬프트에 들어간다
+  (없으면 후보 1개). 얼굴 자르는 영역 `AVATAR_BOX`만 코드(`characters.py`)에 있다.

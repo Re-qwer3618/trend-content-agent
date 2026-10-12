@@ -1,0 +1,46 @@
+[
+ {
+  "title": "명숙 할머니의 캠핑 잔소리 #1",
+  "status": "후보",
+  "formats": [
+   "카드뉴스",
+   "카드형 릴스"
+  ],
+  "topics": [
+   "캠핑·여행",
+   "안전·건강 생활"
+  ],
+  "hook": "참견·질문",
+  "why": "게시 전 — 본보기 후보. 볼 점: 캐릭터 시리즈명(#1)으로 다음 편 기대, 할머니 잔소리로 안전 정보를 다정하게, 댓글 질문(잔소리 1위)과 공유 대상(캠핑 가는 친구)을 콕 집음.",
+  "characters": [
+   "myeongsuk",
+   "kkobuk",
+   "tokki"
+  ],
+  "metrics": {},
+  "notion": "https://app.notion.com/p/3f70abace58c813c8ba8d8c55b9c3382",
+  "file": "명숙_할머니의_캠핑_잔소리_1.json"
+ },
+ {
+  "title": "3위 결정전 KIA vs LG",
+  "status": "후보",
+  "formats": [
+   "카드뉴스",
+   "카드형 릴스"
+  ],
+  "topics": [
+   "야구",
+   "스포츠"
+  ],
+  "hook": "반전·의외",
+  "why": "게시 전 — 본보기 후보. 볼 점: '단 한 경기' 반전 훅, 경우의 수를 캐스터가 표로 정리, 직관이 리액션 컷, 편 가르기 댓글(KIA파? LG파?) + 친구 태그, 출처·계산 근거 표기. 어느 팀 편도 들지 않음.",
+  "characters": [
+   "sea",
+   "fan",
+   "caster"
+  ],
+  "metrics": {},
+  "notion": "https://app.notion.com/p/3f70abace58c81a79e76cdbd72e1af0a",
+  "file": "3위_결정전_KIA_vs_LG.json"
+ }
+]

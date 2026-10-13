@@ -1,0 +1,71 @@
+{
+  "by": "템플릿 (LLM 미사용 — 피사체를 영어로 바꿔 쓰세요)",
+  "prompts": [
+    {
+      "issue_index": 0,
+      "issue_title": "삼성전자 주가",
+      "usage": "blog_thumbnail",
+      "aspect_ratio": "1:1",
+      "prompt_en": "Square editorial photo about \"삼성전자 주가\" (← 영어로 바꿔 넣기), centered main subject, clean background with generous negative space at the top for a headline, soft natural daylight, warm tones, shallow depth of field, 35mm lens, high detail, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "삼성전자 주가",
+      "alt_text_ko": "삼성전자 주가 삼성전자 주가"
+    },
+    {
+      "issue_index": 0,
+      "issue_title": "삼성전자 주가",
+      "usage": "reels_cover",
+      "aspect_ratio": "9:16",
+      "prompt_en": "Vertical 9:16 cinematic shot about \"삼성전자 주가\" (← 영어로 바꿔 넣기), subject in the lower two-thirds, empty sky or wall in the upper third for caption, golden hour lighting, vivid but natural colors, handheld smartphone look, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "삼성전자 주가",
+      "alt_text_ko": "삼성전자 주가 삼성전자 주가"
+    },
+    {
+      "issue_index": 1,
+      "issue_title": "브레이킹 배드",
+      "usage": "blog_thumbnail",
+      "aspect_ratio": "1:1",
+      "prompt_en": "Square editorial photo about \"브레이킹 배드\" (← 영어로 바꿔 넣기), centered main subject, clean background with generous negative space at the top for a headline, soft natural daylight, warm tones, shallow depth of field, 35mm lens, high detail, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "삼성전자 주가",
+      "alt_text_ko": "삼성전자 주가 브레이킹 배드"
+    },
+    {
+      "issue_index": 1,
+      "issue_title": "브레이킹 배드",
+      "usage": "reels_cover",
+      "aspect_ratio": "9:16",
+      "prompt_en": "Vertical 9:16 cinematic shot about \"브레이킹 배드\" (← 영어로 바꿔 넣기), subject in the lower two-thirds, empty sky or wall in the upper third for caption, golden hour lighting, vivid but natural colors, handheld smartphone look, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "삼성전자 주가",
+      "alt_text_ko": "삼성전자 주가 브레이킹 배드"
+    },
+    {
+      "issue_index": 2,
+      "issue_title": "nol",
+      "usage": "blog_thumbnail",
+      "aspect_ratio": "1:1",
+      "prompt_en": "Square editorial photo about \"nol\" (← 영어로 바꿔 넣기), centered main subject, clean background with generous negative space at the top for a headline, soft natural daylight, warm tones, shallow depth of field, 35mm lens, high detail, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "삼성전자 주가",
+      "alt_text_ko": "삼성전자 주가 nol"
+    },
+    {
+      "issue_index": 2,
+      "issue_title": "nol",
+      "usage": "reels_cover",
+      "aspect_ratio": "9:16",
+      "prompt_en": "Vertical 9:16 cinematic shot about \"nol\" (← 영어로 바꿔 넣기), subject in the lower two-thirds, empty sky or wall in the upper third for caption, golden hour lighting, vivid but natural colors, handheld smartphone look, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "삼성전자 주가",
+      "alt_text_ko": "삼성전자 주가 nol"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+# 역할
+너는 SNS 콘텐츠용 이미지 디렉터다.
+
+# 작업
+아래 이슈 [0]~[2] 각각에 대해 용도별(blog_thumbnail(네이버 블로그 썸네일, 1:1), reels_cover(인스타 릴스 커버, 9:16)) 이미지 생성 프롬프트를 영문으로 하나씩 써 줘.
+- 한 문단, 구체적인 피사체·장면·구도·조명·색감·스타일. 문구를 얹을 여백(negative space)을 남길 것
+- 이미지 안에 글자·로고가 생기지 않게 'no text, no logo' 포함. 실존 인물·상표는 일반화해서 표현
+- beautiful·stunning·cinematic·4K 같은 막연한 말 대신 조명·렌즈·샷 크기를 이름으로 (예: golden-hour backlight, 35mm shallow depth of field, overhead flat lay)
+- '피해야 할 행동' 이슈는 올바른 모습을 그린다 (예: 텐트 안 난로 → 텐트 밖 화로 + 환기창 연 텐트)
+- 메인 키워드: 의대생
+
+# 출력 형식 (표)
+| 이슈 | 용도 | 비율 | 영문 프롬프트 | 네거티브 프롬프트 | 얹을 한글 문구(15자 이내) | 대체텍스트(alt, 메인 키워드 포함) |
+
+# 데이터
+# 입력 키워드: (없음 - 오늘의 트렌드 모드)
+
+## 핵심 이슈 후보
+[0] 의대생  (점수 77.6, 플랫폼 google_trends)
+    - (google_trends) 의대생 | 검색량 2000+ | 2026-10-14
+[1] 로봇  (점수 77.6, 플랫폼 google_trends)
+    - (google_trends) 로봇 | 검색량 2000+ | 2026-10-14
+      로봇 눈 가려도 정확히 이동한다…실내 위치인식 신기술 주목 - 머니투데이 / KAIST·ETRI, 한국전자전서 주율주행·AI 등 유망기술 소개 / 자율구동 로봇, 다시쓰는 항균 필터…KAIST 산업혁신 기술 한자리에
+[2] 인터 마이애미 대 뉴욕 시티  (점수 75.9, 플랫폼 google_trends)
+    - (google_trends) 인터 마이애미 대 뉴욕 시티 | 검색량 1000+ | 2026-10-14
+      MATCH PREVIEW: Inter Miami CF Set to Host New York City FC on Wednesday / Inter Miami vs. New York City FC Lineups: Is Lionel Messi Playing Tonight? / FACT FOCU
+
+## 연관 키워드 (점수 / 등장 플랫폼 / 네이버 검색량 최근7일 증감)
+- 시티: 3.0 / google_trends
+- 경기: 2.0 / google_trends
+- ai: 2.0 / google_trends
+
+## 구글 실시간 급상승 검색어 (전체 화제, 참고)
+- 매일경제 (검색량 100+)
+- 인터 마이애미 대 뉴욕 시티 (검색량 1000+)
+- 톱스타뉴스 (검색량 1000+)
+- 교통 사고 (검색량 500+)
+- 의대생 (검색량 2000+)
+- 띠별 운세 (검색량 1000+)
+- 엘링 홀란 (검색량 100+)
+- jtbc (검색량 100+)
+- 로봇 (검색량 2000+)
+- 코어위브 (검색량 200+)

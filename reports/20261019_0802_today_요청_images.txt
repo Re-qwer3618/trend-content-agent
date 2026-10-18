@@ -1,0 +1,44 @@
+# 역할
+너는 SNS 콘텐츠용 이미지 디렉터다.
+
+# 작업
+아래 이슈 [0]~[2] 각각에 대해 용도별(blog_thumbnail(네이버 블로그 썸네일, 1:1), reels_cover(인스타 릴스 커버, 9:16)) 이미지 생성 프롬프트를 영문으로 하나씩 써 줘.
+- 한 문단, 구체적인 피사체·장면·구도·조명·색감·스타일. 문구를 얹을 여백(negative space)을 남길 것
+- 이미지 안에 글자·로고가 생기지 않게 'no text, no logo' 포함. 실존 인물·상표는 일반화해서 표현
+- beautiful·stunning·cinematic·4K 같은 막연한 말 대신 조명·렌즈·샷 크기를 이름으로 (예: golden-hour backlight, 35mm shallow depth of field, overhead flat lay)
+- '피해야 할 행동' 이슈는 올바른 모습을 그린다 (예: 텐트 안 난로 → 텐트 밖 화로 + 환기창 연 텐트)
+- 메인 키워드: real madrid vs sevilla fc standings
+
+# 출력 형식 (표)
+| 이슈 | 용도 | 비율 | 영문 프롬프트 | 네거티브 프롬프트 | 얹을 한글 문구(15자 이내) | 대체텍스트(alt, 메인 키워드 포함) |
+
+# 데이터
+# 입력 키워드: (없음 - 오늘의 트렌드 모드)
+
+## 핵심 이슈 후보
+[0] real madrid vs sevilla fc standings  (점수 78.2, 플랫폼 google_trends)
+    - (google_trends) real madrid vs sevilla fc standings | 검색량 500+ | 2026-10-18
+      Real Madrid vs Sevilla: Lineups, Prediction, Odds & Bet Builder Tip / Vinicius was absent so Diomande shone: and the fun returned to Real Madrid before the Clas
+[1] 레이스 대 가디언즈  (점수 77.6, 플랫폼 google_trends)
+    - (google_trends) 레이스 대 가디언즈 | 검색량 2000+ | 2026-10-18
+      탬파베이, 클리블랜드에 짜릿한 역전승…ALCS 2승 2패 승부 원점 / “늦게 핀 꽃이 더 아름답다” 35살에 첫 올스타 선정된 탬파베이 닉 마르티네스, 위기에 빠진 팀을 구해내다 [ALCS 4차전] / '추강대엽이 맞았다' CLE가 인정한 전설, 추신수 19일 ALCS 시구자 등판 "
+[2] 사제  (점수 74.1, 플랫폼 google_trends)
+    - (google_trends) 사제 | 검색량 500+ | 2026-10-18
+      에콰도르서 생중계 미사 중 대형 십자가에 머리 맞은 사제 사망 / 에콰도르서 생중계 미사 중 대형 십자가 떨어져 사제 사망 / 미사 도중 대형 십자가 ‘쾅’…신부 덮쳐 사망, 생중계에 참변 고스란히
+
+## 연관 키워드 (점수 / 등장 플랫폼 / 네이버 검색량 최근7일 증감)
+- 인터뷰: 2.0 / google_trends
+- 축구: 2.0 / google_trends
+- ps: 2.0 / google_trends
+
+## 구글 실시간 급상승 검색어 (전체 화제, 참고)
+- 사제 (검색량 500+)
+- gpt-6 아스트라 (검색량 200+)
+- real madrid vs sevilla fc standings (검색량 500+)
+- 동아일보 (검색량 500+)
+- 그래미 어워드 (검색량 200+)
+- 레이스 대 가디언즈 (검색량 2000+)
+- 고우석 (검색량 200+)
+- 연합뉴스 (검색량 100+)
+- 라리가 (검색량 500+)
+- 동일 가치 노동 동일 임금 (검색량 100+)

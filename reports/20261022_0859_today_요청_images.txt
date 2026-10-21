@@ -1,0 +1,51 @@
+# 역할
+너는 SNS 콘텐츠용 이미지 디렉터다.
+
+# 작업
+아래 이슈 [0]~[2] 각각에 대해 용도별(blog_thumbnail(네이버 블로그 썸네일, 1:1), reels_cover(인스타 릴스 커버, 9:16)) 이미지 생성 프롬프트를 영문으로 하나씩 써 줘.
+- 한 문단, 구체적인 피사체·장면·구도·조명·색감·스타일. 문구를 얹을 여백(negative space)을 남길 것
+- 이미지 안에 글자·로고가 생기지 않게 'no text, no logo' 포함. 실존 인물·상표는 일반화해서 표현
+- beautiful·stunning·cinematic·4K 같은 막연한 말 대신 조명·렌즈·샷 크기를 이름으로 (예: golden-hour backlight, 35mm shallow depth of field, overhead flat lay)
+- '피해야 할 행동' 이슈는 올바른 모습을 그린다 (예: 텐트 안 난로 → 텐트 밖 화로 + 환기창 연 텐트)
+- 메인 키워드: thứ hạng của real madrid gặp rb leipzig
+
+# 출력 형식 (표)
+| 이슈 | 용도 | 비율 | 영문 프롬프트 | 네거티브 프롬프트 | 얹을 한글 문구(15자 이내) | 대체텍스트(alt, 메인 키워드 포함) |
+
+# 데이터
+# 입력 키워드: (없음 - 오늘의 트렌드 모드)
+
+## 핵심 이슈 후보
+[0] thứ hạng của real madrid gặp rb leipzig  (점수 78.0, 플랫폼 google_trends)
+    - (google_trends) thứ hạng của real madrid gặp rb leipzig | 검색량 200+ | 2026-10-21
+      Video bóng đá Real Madrid - Leipzig: Mbappe - Diomande rực rỡ (Cúp C1) / Kết quả bóng đá hôm nay ngày 22/10: MU thua đậm, Real Madrid thắng lớn / Real thắng đậm
+    - (google_trends) klasemen real madrid vs rb leipzig | 검색량 100+ | 2026-10-21
+[1] 미스터트롯  (점수 77.6, 플랫폼 google_trends)
+    - (google_trends) 미스터트롯 | 검색량 1000+ | 2026-10-21
+      [미스터트롯4] 이찬원, 스페셜 마스터 합류! 역대 ′미스터트롯′ 선배들 총출동 / 제2의 임영웅·이찬원 찾는다…‘미스터트롯4’, 더 강력해진 원조의 귀환 / 이찬원·안성훈·박지현·김용빈 트로트 스타, ‘미스터트롯4’ 마스터로 뜬다
+[2] 박위  (점수 77.5, 플랫폼 google_trends)
+    - (google_trends) 박위 | 검색량 1000+ | 2026-10-21
+      [단독] 박위 침묵 속 영상 또 삭제···추락사고 회고도 내렸다 / 'CCTV 논란' 박위, 감자튀김 짜증 영상까지 파묘.."아 씨!"[스타이슈] / 'CCTV 저격 논란' 박위, 조용히 유튜브 영상 삭제…잡음 계속 [종합]
+
+## 연관 키워드 (점수 / 등장 플랫폼 / 네이버 검색량 최근7일 증감)
+- real: 4.0 / google_trends
+- madrid: 4.0 / google_trends
+- rb: 4.0 / google_trends
+- leipzig: 4.0 / google_trends
+- ng: 4.0 / google_trends
+- stock: 3.0 / google_trends
+- ai: 2.0 / google_trends
+- c1: 2.0 / google_trends
+- tr: 2.0 / google_trends
+
+## 구글 실시간 급상승 검색어 (전체 화제, 참고)
+- 한혜진 (검색량 200+)
+- klasemen real madrid vs rb leipzig (검색량 100+)
+- nvda (검색량 100+)
+- thứ hạng của real madrid gặp rb leipzig (검색량 200+)
+- thứ hạng của bayern gặp arsenal (검색량 200+)
+- xrpn (검색량 100+)
+- spch (검색량 100+)
+- 미스터트롯 (검색량 1000+)
+- 제너럴 모터스 (검색량 500+)
+- 박위 (검색량 1000+)

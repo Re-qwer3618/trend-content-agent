@@ -1,0 +1,42 @@
+# 역할
+너는 SNS 콘텐츠용 이미지 디렉터다.
+
+# 작업
+아래 이슈 [0]~[2] 각각에 대해 용도별(blog_thumbnail(네이버 블로그 썸네일, 1:1), reels_cover(인스타 릴스 커버, 9:16)) 이미지 생성 프롬프트를 영문으로 하나씩 써 줘.
+- 한 문단, 구체적인 피사체·장면·구도·조명·색감·스타일. 문구를 얹을 여백(negative space)을 남길 것
+- 이미지 안에 글자·로고가 생기지 않게 'no text, no logo' 포함. 실존 인물·상표는 일반화해서 표현
+- beautiful·stunning·cinematic·4K 같은 막연한 말 대신 조명·렌즈·샷 크기를 이름으로 (예: golden-hour backlight, 35mm shallow depth of field, overhead flat lay)
+- '피해야 할 행동' 이슈는 올바른 모습을 그린다 (예: 텐트 안 난로 → 텐트 밖 화로 + 환기창 연 텐트)
+- 메인 키워드: fc barcelona vs deportivo alavés standings
+
+# 출력 형식 (표)
+| 이슈 | 용도 | 비율 | 영문 프롬프트 | 네거티브 프롬프트 | 얹을 한글 문구(15자 이내) | 대체텍스트(alt, 메인 키워드 포함) |
+
+# 데이터
+# 입력 키워드: (없음 - 오늘의 트렌드 모드)
+
+## 핵심 이슈 후보
+[0] fc barcelona vs deportivo alavés standings  (점수 78.2, 플랫폼 google_trends)
+    - (google_trends) fc barcelona vs deportivo alavés standings | 검색량 500+ | 2026-10-31
+      Confirmed: Barcelona squad list to face Alaves – two new faces called up / Barcelona’s predicted lineup against Alavés in La Liga.. Flick looks to return to win
+[1] 드라마  (점수 77.6, 플랫폼 google_trends)
+    - (google_trends) 드라마 | 검색량 2000+ | 2026-10-31
+      "넷플릭스 없어도 되겠네"…韓드라마 공짜로 볼 수 있다는데 [김예랑의 K컬처인사이드] / 구작으로 광고 수익에 신작 홍보까지…CJ ENM 'FAST 활용법' [엔터코노미] / CJ ENM, 북미 LG채널 통해 ‘K-댄스 전용 FAST 채널’ 독점 론칭
+[2] 샬럿 대 필라데피아  (점수 74.0, 플랫폼 google_trends)
+    - (google_trends) 샬럿 대 필라데피아 | 검색량 500+ | 2026-10-31
+      Sixers at Hornets: Game Preview, Injury Report and How to Watch 10/31/2026 / Charlotte Hornets vs. Philadelphia 76ers Full Game Preview, Score Predictions / How
+
+## 연관 키워드 (점수 / 등장 플랫폼 / 네이버 검색량 최근7일 증감)
+- 다시: 2.0 / google_trends
+
+## 구글 실시간 급상승 검색어 (전체 화제, 참고)
+- 이정영 (검색량 200+)
+- fc barcelona vs deportivo alavés standings (검색량 500+)
+- 대구날씨 (검색량 200+)
+- 눈 둘 데가 없네 (검색량 200+)
+- 샬럿 대 필라데피아 (검색량 500+)
+- 대한민국 축구 국가대표팀 (검색량 500+)
+- 박서진 (검색량 200+)
+- 바이퍼 (검색량 100+)
+- 노소영 (검색량 100+)
+- 드라마 (검색량 2000+)

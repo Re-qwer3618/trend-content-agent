@@ -1,0 +1,71 @@
+{
+  "by": "템플릿 (LLM 미사용 — 피사체를 영어로 바꿔 쓰세요)",
+  "prompts": [
+    {
+      "issue_index": 0,
+      "issue_title": "아시아 프로 야구 챔피언십",
+      "usage": "blog_thumbnail",
+      "aspect_ratio": "1:1",
+      "prompt_en": "Square editorial photo about \"아시아 프로 야구 챔피언십\" (← 영어로 바꿔 넣기), centered main subject, clean background with generous negative space at the top for a headline, soft natural daylight, warm tones, shallow depth of field, 35mm lens, high detail, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "아시아 프로 야구 챔피언십",
+      "alt_text_ko": "아시아 프로 야구 챔피언십 아시아 프로 야구 챔피언십"
+    },
+    {
+      "issue_index": 0,
+      "issue_title": "아시아 프로 야구 챔피언십",
+      "usage": "reels_cover",
+      "aspect_ratio": "9:16",
+      "prompt_en": "Vertical 9:16 cinematic shot about \"아시아 프로 야구 챔피언십\" (← 영어로 바꿔 넣기), subject in the lower two-thirds, empty sky or wall in the upper third for caption, golden hour lighting, vivid but natural colors, handheld smartphone look, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "아시아 프로 야구 챔피언십",
+      "alt_text_ko": "아시아 프로 야구 챔피언십 아시아 프로 야구 챔피언십"
+    },
+    {
+      "issue_index": 1,
+      "issue_title": "하리수",
+      "usage": "blog_thumbnail",
+      "aspect_ratio": "1:1",
+      "prompt_en": "Square editorial photo about \"하리수\" (← 영어로 바꿔 넣기), centered main subject, clean background with generous negative space at the top for a headline, soft natural daylight, warm tones, shallow depth of field, 35mm lens, high detail, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "아시아 프로 야구 챔피언십",
+      "alt_text_ko": "아시아 프로 야구 챔피언십 하리수"
+    },
+    {
+      "issue_index": 1,
+      "issue_title": "하리수",
+      "usage": "reels_cover",
+      "aspect_ratio": "9:16",
+      "prompt_en": "Vertical 9:16 cinematic shot about \"하리수\" (← 영어로 바꿔 넣기), subject in the lower two-thirds, empty sky or wall in the upper third for caption, golden hour lighting, vivid but natural colors, handheld smartphone look, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "아시아 프로 야구 챔피언십",
+      "alt_text_ko": "아시아 프로 야구 챔피언십 하리수"
+    },
+    {
+      "issue_index": 2,
+      "issue_title": "볼로디미르 젤렌스키",
+      "usage": "blog_thumbnail",
+      "aspect_ratio": "1:1",
+      "prompt_en": "Square editorial photo about \"볼로디미르 젤렌스키\" (← 영어로 바꿔 넣기), centered main subject, clean background with generous negative space at the top for a headline, soft natural daylight, warm tones, shallow depth of field, 35mm lens, high detail, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "아시아 프로 야구 챔피언십",
+      "alt_text_ko": "아시아 프로 야구 챔피언십 볼로디미르 젤렌스키"
+    },
+    {
+      "issue_index": 2,
+      "issue_title": "볼로디미르 젤렌스키",
+      "usage": "reels_cover",
+      "aspect_ratio": "9:16",
+      "prompt_en": "Vertical 9:16 cinematic shot about \"볼로디미르 젤렌스키\" (← 영어로 바꿔 넣기), subject in the lower two-thirds, empty sky or wall in the upper third for caption, golden hour lighting, vivid but natural colors, handheld smartphone look, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "아시아 프로 야구 챔피언십",
+      "alt_text_ko": "아시아 프로 야구 챔피언십 볼로디미르 젤렌스키"
+    }
+  ]
+}

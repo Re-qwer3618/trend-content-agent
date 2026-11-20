@@ -1,0 +1,71 @@
+{
+  "by": "템플릿 (LLM 미사용 — 피사체를 영어로 바꿔 쓰세요)",
+  "prompts": [
+    {
+      "issue_index": 0,
+      "issue_title": "논현동",
+      "usage": "blog_thumbnail",
+      "aspect_ratio": "1:1",
+      "prompt_en": "Square editorial photo about \"논현동\" (← 영어로 바꿔 넣기), centered main subject, clean background with generous negative space at the top for a headline, soft natural daylight, warm tones, shallow depth of field, 35mm lens, high detail, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "논현동",
+      "alt_text_ko": "논현동 논현동"
+    },
+    {
+      "issue_index": 0,
+      "issue_title": "논현동",
+      "usage": "reels_cover",
+      "aspect_ratio": "9:16",
+      "prompt_en": "Vertical 9:16 cinematic shot about \"논현동\" (← 영어로 바꿔 넣기), subject in the lower two-thirds, empty sky or wall in the upper third for caption, golden hour lighting, vivid but natural colors, handheld smartphone look, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "논현동",
+      "alt_text_ko": "논현동 논현동"
+    },
+    {
+      "issue_index": 1,
+      "issue_title": "물수리",
+      "usage": "blog_thumbnail",
+      "aspect_ratio": "1:1",
+      "prompt_en": "Square editorial photo about \"물수리\" (← 영어로 바꿔 넣기), centered main subject, clean background with generous negative space at the top for a headline, soft natural daylight, warm tones, shallow depth of field, 35mm lens, high detail, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "논현동",
+      "alt_text_ko": "논현동 물수리"
+    },
+    {
+      "issue_index": 1,
+      "issue_title": "물수리",
+      "usage": "reels_cover",
+      "aspect_ratio": "9:16",
+      "prompt_en": "Vertical 9:16 cinematic shot about \"물수리\" (← 영어로 바꿔 넣기), subject in the lower two-thirds, empty sky or wall in the upper third for caption, golden hour lighting, vivid but natural colors, handheld smartphone look, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "논현동",
+      "alt_text_ko": "논현동 물수리"
+    },
+    {
+      "issue_index": 2,
+      "issue_title": "경기도교육청",
+      "usage": "blog_thumbnail",
+      "aspect_ratio": "1:1",
+      "prompt_en": "Square editorial photo about \"경기도교육청\" (← 영어로 바꿔 넣기), centered main subject, clean background with generous negative space at the top for a headline, soft natural daylight, warm tones, shallow depth of field, 35mm lens, high detail, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "논현동",
+      "alt_text_ko": "논현동 경기도교육청"
+    },
+    {
+      "issue_index": 2,
+      "issue_title": "경기도교육청",
+      "usage": "reels_cover",
+      "aspect_ratio": "9:16",
+      "prompt_en": "Vertical 9:16 cinematic shot about \"경기도교육청\" (← 영어로 바꿔 넣기), subject in the lower two-thirds, empty sky or wall in the upper third for caption, golden hour lighting, vivid but natural colors, handheld smartphone look, no text, no logo",
+      "negative_prompt": "text, letters, watermark, logo, signature, blurry, low quality, distorted hands, extra fingers",
+      "style": "photorealistic",
+      "overlay_text_ko": "논현동",
+      "alt_text_ko": "논현동 경기도교육청"
+    }
+  ]
+}
